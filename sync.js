@@ -35,6 +35,7 @@ function getSupabaseUrl() {
 function setSupabaseUrl(url) {
   if (url) localStorage.setItem(SUPABASE_URL_STORAGE, url);
   else localStorage.removeItem(SUPABASE_URL_STORAGE);
+  resetSupabaseClient();
 }
 function getSupabaseKey() {
   return localStorage.getItem(SUPABASE_KEY_STORAGE) || "";
@@ -42,6 +43,16 @@ function getSupabaseKey() {
 function setSupabaseKey(key) {
   if (key) localStorage.setItem(SUPABASE_KEY_STORAGE, key);
   else localStorage.removeItem(SUPABASE_KEY_STORAGE);
+  resetSupabaseClient();
+}
+
+// Forces the next getSupabaseClient() call to rebuild with fresh
+// credentials -- needed whenever the URL/key change after first use, since
+// the client is otherwise cached for the page's lifetime.
+function resetSupabaseClient() {
+  if (realtimeChannel && supabaseClient) supabaseClient.removeChannel(realtimeChannel);
+  realtimeChannel = null;
+  supabaseClient = null;
 }
 function getIdentity() {
   return localStorage.getItem(IDENTITY_STORAGE) || "";
