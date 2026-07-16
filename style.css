@@ -135,6 +135,14 @@ body {
   margin-bottom: 2px;
 }
 
+.msg-time {
+  display: block;
+  font-size: 9px;
+  opacity: 0.55;
+  margin-top: 2px;
+  text-align: right;
+}
+
 /* --- Right: tamagotchi device --- */
 
 .device-wrap {

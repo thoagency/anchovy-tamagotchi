@@ -196,7 +196,16 @@ function removeBubble(bubble) {
   setTimeout(() => bubble.remove(), BUBBLE_TRANSITION_MS + 100); // fallback
 }
 
-function renderHumanMessage(msg) {
+function formatTimestamp(ts) {
+  return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+// The bubble for whichever human message is currently newest -- shows
+// "Just now" until another human message arrives, at which point it gets
+// demoted to a real clock time and the new message takes over as "Just now".
+let latestHumanMsgEl = null;
+
+function renderHumanMessage(msg, isLatest) {
   const div = document.createElement("div");
   const mine = msg.who === getIdentity();
   div.className = `msg ${mine ? "mine" : "theirs"}`;
@@ -207,22 +216,42 @@ function renderHumanMessage(msg) {
     div.appendChild(label);
   }
   div.appendChild(document.createTextNode(msg.text));
+
+  const time = document.createElement("span");
+  time.className = "msg-time";
+  time.textContent = isLatest ? "Just now" : formatTimestamp(msg.ts);
+  div.appendChild(time);
+
   el.chatlog.appendChild(div);
   el.chatlog.scrollTop = el.chatlog.scrollHeight;
+  return div;
 }
 
 function renderMessage(msg) {
   if (msg.who === "anchovy") {
     showAnchovyBubble(msg.text);
-  } else {
-    renderHumanMessage(msg);
+    return;
   }
+  if (latestHumanMsgEl) {
+    latestHumanMsgEl.querySelector(".msg-time").textContent = formatTimestamp(
+      Number(latestHumanMsgEl.dataset.ts)
+    );
+  }
+  latestHumanMsgEl = renderHumanMessage(msg, true);
+  latestHumanMsgEl.dataset.ts = msg.ts;
 }
 
 function renderChatHistory() {
   el.chatlog.innerHTML = "";
-  state.chatHistory.forEach((msg) => {
-    if (msg.who !== "anchovy") renderHumanMessage(msg);
+  latestHumanMsgEl = null;
+  const humanMsgs = state.chatHistory.filter((msg) => msg.who !== "anchovy");
+  humanMsgs.forEach((msg, i) => {
+    const isLatest = i === humanMsgs.length - 1;
+    const div = renderHumanMessage(msg, isLatest);
+    if (isLatest) {
+      latestHumanMsgEl = div;
+      latestHumanMsgEl.dataset.ts = msg.ts;
+    }
   });
 }
 
