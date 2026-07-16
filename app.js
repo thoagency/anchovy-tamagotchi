@@ -30,7 +30,7 @@ const el = {
   energy: document.getElementById("bar-energy"),
   mood: document.getElementById("bar-mood"),
   avatar: document.getElementById("avatar"),
-  anchovyBubble: document.getElementById("anchovy-bubble"),
+  anchovyBubbles: document.getElementById("anchovy-bubbles"),
   chatlog: document.getElementById("chatlog"),
   chatForm: document.getElementById("chat-form"),
   chatInput: document.getElementById("chat-input"),
@@ -60,7 +60,8 @@ const el = {
 // echo back through the realtime subscription.
 const sentClientIds = new Set();
 
-let bubbleTimer = null;
+const BUBBLE_LIMIT = 4;
+const BUBBLE_TRANSITION_MS = 350;
 
 function loadState() {
   try {
@@ -162,17 +163,27 @@ function showSyncError(message) {
   el.identityStatus.style.color = "#c0392b";
 }
 
-// Anchovy's lines float as a fading speech bubble over the tamagotchi
-// instead of sitting in a permanent log -- everything else (Thomas' and
-// Behazin's own messages to each other) lives in the left chat panel.
+// Anchovy's lines stack up above the tamagotchi (never over the avatar
+// itself) instead of sitting in a permanent log -- everything else (Thomas'
+// and Behazin's own messages to each other) lives in the left chat panel.
+// Keeps the last BUBBLE_LIMIT; older ones fade out as new ones arrive.
 function showAnchovyBubble(text) {
-  clearTimeout(bubbleTimer);
-  el.anchovyBubble.textContent = text;
-  el.anchovyBubble.classList.add("visible");
-  const duration = Math.min(9000, Math.max(4000, text.length * 90));
-  bubbleTimer = setTimeout(() => {
-    el.anchovyBubble.classList.remove("visible");
-  }, duration);
+  const bubble = document.createElement("div");
+  bubble.className = "anchovy-bubble";
+  bubble.textContent = text;
+  el.anchovyBubbles.appendChild(bubble);
+  requestAnimationFrame(() => bubble.classList.add("visible"));
+
+  while (el.anchovyBubbles.children.length > BUBBLE_LIMIT) {
+    removeBubble(el.anchovyBubbles.children[0]);
+  }
+}
+
+function removeBubble(bubble) {
+  bubble.classList.remove("visible");
+  bubble.classList.add("leaving");
+  bubble.addEventListener("transitionend", () => bubble.remove(), { once: true });
+  setTimeout(() => bubble.remove(), BUBBLE_TRANSITION_MS + 100); // fallback
 }
 
 function renderHumanMessage(msg) {
