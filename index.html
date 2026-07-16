@@ -111,6 +111,16 @@
   <script>
     if ("serviceWorker" in navigator && location.protocol !== "file:") {
       navigator.serviceWorker.register("sw.js").catch(() => {});
+      // Without this, a freshly-deployed version only takes over on a
+      // *second* reload (the first one is still served by the old worker
+      // while the new one installs in the background) -- auto-reload once
+      // the new worker actually takes control so updates just show up.
+      let refreshedForUpdate = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (refreshedForUpdate) return;
+        refreshedForUpdate = true;
+        location.reload();
+      });
     }
   </script>
 </body>

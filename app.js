@@ -178,8 +178,14 @@ function showAnchovyBubble(text) {
   el.anchovyBubbles.appendChild(bubble);
   requestAnimationFrame(() => bubble.classList.add("visible"));
 
-  while (el.anchovyBubbles.children.length > BUBBLE_LIMIT) {
-    removeBubble(el.anchovyBubbles.children[0]);
+  // removeBubble() doesn't pull the node out of the DOM immediately (it
+  // waits for the fade-out transition), so take a snapshot of who's excess
+  // up front rather than re-checking the live child count in a loop --
+  // otherwise the count never drops and this spins forever.
+  const bubbles = Array.from(el.anchovyBubbles.children);
+  const excess = bubbles.length - BUBBLE_LIMIT;
+  for (let i = 0; i < excess; i++) {
+    removeBubble(bubbles[i]);
   }
 }
 
