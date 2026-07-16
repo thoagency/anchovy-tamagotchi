@@ -456,7 +456,11 @@ document.addEventListener("click", (e) => {
 
 // --- AI settings (optional Gemini upgrade) ---
 
-function updateSettingsStatus() {
+function updateSettingsStatus(override) {
+  if (override) {
+    el.settingsStatus.textContent = override;
+    return;
+  }
   el.settingsStatus.textContent = getGeminiKey()
     ? "Smarter replies on (using Gemini)."
     : "Offline mode (no key set).";
@@ -480,10 +484,18 @@ el.settingsBtn.addEventListener("click", (e) => {
   }
 });
 
-el.settingsSave.addEventListener("click", () => {
+el.settingsSave.addEventListener("click", async () => {
   setGeminiKey(el.settingsKeyInput.value.trim());
-  updateSettingsStatus();
-  closeSettingsMenu();
+  if (!getGeminiKey()) {
+    updateSettingsStatus();
+    closeSettingsMenu();
+    return;
+  }
+  updateSettingsStatus("Testing key...");
+  const result = await testGeminiConnection();
+  updateSettingsStatus(
+    result.ok ? "Smarter replies on (Gemini connected)." : `Gemini error: ${result.message} — using offline brain for now.`
+  );
 });
 
 el.settingsClear.addEventListener("click", () => {
@@ -519,6 +531,10 @@ el.chatForm.addEventListener("submit", (e) => {
         reply = await getGeminiReply(asked, state);
       } catch (err) {
         console.warn("Gemini reply failed, falling back to offline brain:", err);
+        // Surface this in the settings panel (even if closed right now) so
+        // it's visible next time it's opened, instead of silently looking
+        // like Gemini just isn't adding anything.
+        updateSettingsStatus(`Gemini error: ${err.message || err} — using offline brain for now.`);
       }
       if (!reply) {
         reply = getAnchovyReply(asked, state);
