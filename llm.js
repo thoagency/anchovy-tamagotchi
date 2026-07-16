@@ -19,10 +19,16 @@ function setGeminiKey(key) {
 }
 
 function buildGeminiContents(chatHistory, latestUserText) {
-  const recent = chatHistory.slice(-GEMINI_HISTORY_LIMIT);
+  // Only messages directed at Anchovy (his own replies, plus @anchy asks)
+  // go into his context -- the human-to-human chatter around them is left
+  // out so the turns stay a clean user/model back-and-forth.
+  const relevant = chatHistory.filter(
+    (msg) => msg.who === "anchovy" || /@anchy\b/i.test(msg.text)
+  );
+  const recent = relevant.slice(-GEMINI_HISTORY_LIMIT);
   const contents = recent.map((msg) => ({
-    role: msg.who === "player" ? "user" : "model",
-    parts: [{ text: msg.text }],
+    role: msg.who === "anchovy" ? "model" : "user",
+    parts: [{ text: msg.text.replace(/@anchy\b/gi, "").trim() || msg.text }],
   }));
   // Gemini requires the conversation to start with a "user" turn.
   while (contents.length && contents[0].role !== "user") {
@@ -90,7 +96,7 @@ async function summarizeForMemory(oldMessages) {
   if (!apiKey || !oldMessages.length) return null;
 
   const transcript = oldMessages
-    .map((m) => `${m.who === "player" ? "Them" : "Anchovy"}: ${m.text}`)
+    .map((m) => `${m.who === "anchovy" ? "Anchovy" : "Them"}: ${m.text}`)
     .join("\n");
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;

@@ -12,13 +12,30 @@ picks up where you left off, decay included.
 
 ## How it works
 
-- `index.html` — layout: stat bars, avatar stage, chat log, action buttons.
-- `style.css` — Tamagotchi-shell look.
+The screen is split in two:
+
+- **Left: your chat with Behazin (or Thomas).** A normal human-to-human chat
+  thread. Type `@anchy` anywhere in a message to also pull Anchovy into the
+  conversation — his reply pops up as a floating speech bubble over the
+  tamagotchi on the right (see below), not in this thread.
+- **Right: the tamagotchi.** Stats, avatar, Feed/Nap/Gift actions, and
+  Anchovy's own speech bubble.
+
+On first visit (per browser) you pick who you are — Thomas or Behazin — via
+a full-screen prompt. That choice is what determines which side of the left
+chat your own messages land on, and is stored in `localStorage`.
+
+Files:
+
+- `index.html` — layout: character-select overlay, chat panel, tamagotchi
+  stat bars/avatar/actions.
+- `style.css` — Tamagotchi-shell look, chat panel, and the floating bubble.
 - `brain.js` — Anchovy's personality engine (`getAnchovyReply`,
   `getIdleLine`). Currently a local, rule-based keyword matcher — no LLM
   needed.
 - `app.js` — state (hunger/energy/mood), real-time decay based on elapsed
-  wall-clock time, and wiring for the Feed/Nap/Pet buttons and chat form.
+  wall-clock time, chat panel rendering, the `@anchy` mention trigger, and
+  wiring for the Feed/Nap/Gift buttons.
 
 Stats decay for real between visits (based on `Date.now()` deltas), so if
 you leave him for a few hours he'll be hungrier/sleepier/moodier when you
@@ -53,42 +70,44 @@ jokes) into `state.memory.notes`, which then rides along in every future
 system prompt (see `buildSystemInstruction` in `llm.js`). This only runs
 when a Gemini key is set — offline mode has no way to summarize.
 
-## Shared chat with Behazin (optional, via Supabase)
+## Shared chat with Behazin (via Supabase)
 
-Lets two devices (yours and Behazin's) talk to the same Anchovy in real
-time — messages sent from either device show up on both.
+Both devices talk to the same Anchovy in real time — human chat messages
+and `@anchy` replies sent from either device show up on both, live.
 
-1. Create a free project at [supabase.com](https://supabase.com).
-2. In the SQL editor, run:
-   ```sql
-   create table messages (
-     id uuid primary key default gen_random_uuid(),
-     client_id text,
-     sender text not null, -- 'thomas' | 'behazin' | 'anchovy'
-     text text not null,
-     created_at timestamptz not null default now()
-   );
+The Supabase project URL and publishable key are baked directly into
+`sync.js` (`DEFAULT_SUPABASE_URL`/`DEFAULT_SUPABASE_KEY`) rather than entered
+per-device — this is safe specifically for the *publishable* key, since it's
+designed to be exposed client-side and still can't do anything the RLS
+policies below don't allow. All you need on each device is to open the app
+and pick Thomas or Behazin once.
 
-   alter table messages enable row level security;
-   create policy "Allow all reads" on messages for select using (true);
-   create policy "Allow all inserts" on messages for insert with check (true);
+Underlying table setup (already done, kept here for reference/re-creating
+the project later):
+```sql
+create table messages (
+  id uuid primary key default gen_random_uuid(),
+  client_id text,
+  sender text not null, -- 'thomas' | 'behazin' | 'anchovy'
+  text text not null,
+  created_at timestamptz not null default now()
+);
 
-   alter publication supabase_realtime add table messages;
-   ```
-3. In Supabase → Settings → API, copy the **Project URL** and the
-   **anon public key**.
-4. In the app, open ⚙️ → "Shared chat" → pick who you are (Thomas/Behazin),
-   paste the URL + key, hit Save. Do the same on Behazin's device/browser,
-   picking the other name.
+alter table messages enable row level security;
+create policy "Allow all reads" on messages for select using (true);
+create policy "Allow all inserts" on messages for insert with check (true);
 
-Once both are set up, typed chat messages (and Anchovy's replies to them)
-sync across both devices via Supabase's realtime feed. Feed/Nap/Gift
-reactions and idle chatter stay local to each device on purpose, so they
-don't clutter the shared conversation.
+alter publication supabase_realtime add table messages;
+```
 
-**Heads up:** the RLS policies above allow anyone with the URL + anon key
-to read/write the table — acceptable for a private two-person gift project,
-but don't publish those values anywhere public.
+Feed/Nap/Gift reactions and idle chatter stay local to each device on
+purpose, so they don't clutter the shared conversation or spam the other
+person's tamagotchi bubble.
+
+**Heads up:** the RLS policies above allow anyone with the URL + publishable
+key to read/write the table — acceptable for a private two-person gift
+project. The **secret key** must never be pasted into the app or committed
+anywhere in this repo — only the publishable key belongs here.
 
 ## About the character / art
 

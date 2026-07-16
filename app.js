@@ -18,6 +18,7 @@ const DEFAULT_STATE = {
 const CHAT_HISTORY_CAP = 40;
 const MEMORY_SUMMARY_BATCH = 10;
 const MEMORY_NOTES_CAP = 30;
+const MENTION_RE = /@anchy\b/i;
 
 const GIFT_LABELS = { hug: "Hug", lizard: "A pet lizard", hat: "Hat", rock: "Friendship Rock" };
 const GIFT_MOOD_BOOST = { hug: 15, lizard: 10, hat: 25, rock: 12, custom: 15 };
@@ -29,6 +30,7 @@ const el = {
   energy: document.getElementById("bar-energy"),
   mood: document.getElementById("bar-mood"),
   avatar: document.getElementById("avatar"),
+  anchovyBubble: document.getElementById("anchovy-bubble"),
   chatlog: document.getElementById("chatlog"),
   chatForm: document.getElementById("chat-form"),
   chatInput: document.getElementById("chat-input"),
@@ -46,18 +48,19 @@ const el = {
   settingsStatus: document.getElementById("settings-status"),
   settingsSave: document.getElementById("settings-save"),
   settingsClear: document.getElementById("settings-clear"),
-  identitySelect: document.getElementById("identity-select"),
-  supabaseUrlInput: document.getElementById("supabase-url-input"),
-  supabaseKeyInput: document.getElementById("supabase-key-input"),
-  syncStatus: document.getElementById("sync-status"),
-  syncSave: document.getElementById("sync-save"),
-  syncClear: document.getElementById("sync-clear"),
+  identityStatus: document.getElementById("identity-status"),
+  identitySwitch: document.getElementById("identity-switch"),
+  charScreen: document.getElementById("char-screen"),
+  charThomas: document.getElementById("char-thomas"),
+  charBehazin: document.getElementById("char-behazin"),
 };
 
 // Client-generated ids for messages this device has already rendered, so
 // this device's own inserts don't get rendered a second time when they
 // echo back through the realtime subscription.
 const sentClientIds = new Set();
+
+let bubbleTimer = null;
 
 function loadState() {
   try {
@@ -148,29 +151,58 @@ function addMessage(who, text, opts = {}) {
   if (!opts.fromRemote && !opts.skipSync && isSyncConfigured()) {
     const clientId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     sentClientIds.add(clientId);
-    const sender = who === "anchovy" ? "anchovy" : getIdentity();
-    pushSharedMessage(sender, text, clientId).then(({ error }) => {
+    pushSharedMessage(who, text, clientId).then(({ error }) => {
       if (error) showSyncError(`Send failed: ${error.message || error}`);
     });
   }
 }
 
 function showSyncError(message) {
-  el.syncStatus.textContent = message;
-  el.syncStatus.style.color = "#c0392b";
+  el.identityStatus.textContent = message;
+  el.identityStatus.style.color = "#c0392b";
 }
 
-function renderMessage(msg) {
+// Anchovy's lines float as a fading speech bubble over the tamagotchi
+// instead of sitting in a permanent log -- everything else (Thomas' and
+// Behazin's own messages to each other) lives in the left chat panel.
+function showAnchovyBubble(text) {
+  clearTimeout(bubbleTimer);
+  el.anchovyBubble.textContent = text;
+  el.anchovyBubble.classList.add("visible");
+  const duration = Math.min(9000, Math.max(4000, text.length * 90));
+  bubbleTimer = setTimeout(() => {
+    el.anchovyBubble.classList.remove("visible");
+  }, duration);
+}
+
+function renderHumanMessage(msg) {
   const div = document.createElement("div");
-  div.className = `msg ${msg.who}`;
-  div.textContent = msg.text;
+  const mine = msg.who === getIdentity();
+  div.className = `msg ${mine ? "mine" : "theirs"}`;
+  if (!mine) {
+    const label = document.createElement("span");
+    label.className = "msg-name";
+    label.textContent = msg.who === "thomas" ? "Thomas" : "Behazin";
+    div.appendChild(label);
+  }
+  div.appendChild(document.createTextNode(msg.text));
   el.chatlog.appendChild(div);
   el.chatlog.scrollTop = el.chatlog.scrollHeight;
 }
 
+function renderMessage(msg) {
+  if (msg.who === "anchovy") {
+    showAnchovyBubble(msg.text);
+  } else {
+    renderHumanMessage(msg);
+  }
+}
+
 function renderChatHistory() {
   el.chatlog.innerHTML = "";
-  state.chatHistory.forEach(renderMessage);
+  state.chatHistory.forEach((msg) => {
+    if (msg.who !== "anchovy") renderHumanMessage(msg);
+  });
 }
 
 function anchovySay(text, opts) {
@@ -201,25 +233,51 @@ function handleWelcomeBack(wasAway) {
   anchovySay(getIdleLine(state), { skipSync: true });
 }
 
-// --- Shared sync (optional Supabase upgrade) ---
+// --- Character select ---
+
+function showCharScreen() {
+  el.charScreen.classList.remove("hidden");
+}
+
+function hideCharScreen() {
+  el.charScreen.classList.add("hidden");
+}
+
+function chooseIdentity(name) {
+  setIdentity(name);
+  hideCharScreen();
+  updateIdentityStatus();
+  renderChatHistory();
+  initSharedSync().then(() => handleWelcomeBack(false));
+}
+
+el.charThomas.addEventListener("click", () => chooseIdentity("thomas"));
+el.charBehazin.addEventListener("click", () => chooseIdentity("behazin"));
+
+el.identitySwitch.addEventListener("click", () => {
+  setIdentity("");
+  updateIdentityStatus();
+  closeSettingsMenu();
+  el.chatlog.innerHTML = "";
+  showCharScreen();
+});
+
+// --- Shared sync (Supabase) ---
 
 function hydrateChatHistory(rows) {
-  state.chatHistory = rows
-    .slice(-CHAT_HISTORY_CAP)
-    .map((r) => ({
-      who: r.sender === "anchovy" ? "anchovy" : "player",
-      text: r.text,
-      ts: new Date(r.created_at).getTime(),
-    }));
+  state.chatHistory = rows.slice(-CHAT_HISTORY_CAP).map((r) => ({
+    who: r.sender,
+    text: r.text,
+    ts: new Date(r.created_at).getTime(),
+  }));
   renderChatHistory();
   saveState();
 }
 
 function handleRemoteInsert(row) {
   if (row.client_id && sentClientIds.has(row.client_id)) return; // our own echo
-  const who = row.sender === "anchovy" ? "anchovy" : "player";
-  addMessage(who, row.text, { fromRemote: true });
-  if (who === "anchovy") bounceAvatar();
+  addMessage(row.sender, row.text, { fromRemote: true });
+  if (row.sender === "anchovy") bounceAvatar();
 }
 
 async function initSharedSync() {
@@ -327,9 +385,6 @@ function updateSettingsStatus() {
 
 function openSettingsMenu() {
   el.settingsKeyInput.value = getGeminiKey();
-  el.identitySelect.value = getIdentity();
-  el.supabaseUrlInput.value = getSupabaseUrl();
-  el.supabaseKeyInput.value = getSupabaseKey();
   el.settingsMenu.classList.remove("hidden");
 }
 
@@ -358,55 +413,41 @@ el.settingsClear.addEventListener("click", () => {
   updateSettingsStatus();
 });
 
-function updateSyncStatus() {
-  el.syncStatus.style.color = "";
-  el.syncStatus.textContent = isSyncConfigured()
-    ? `Synced as ${getIdentity() === "thomas" ? "Thomas" : "Behazin"}.`
-    : "Not synced (this device only).";
+function updateIdentityStatus() {
+  el.identityStatus.style.color = "";
+  const name = getIdentity();
+  el.identityStatus.textContent = name ? (name === "thomas" ? "Thomas" : "Behazin") : "Not chosen yet.";
 }
 
-el.syncSave.addEventListener("click", () => {
-  setIdentity(el.identitySelect.value);
-  setSupabaseUrl(el.supabaseUrlInput.value.trim());
-  setSupabaseKey(el.supabaseKeyInput.value.trim());
-  updateSyncStatus();
-  if (isSyncConfigured()) initSharedSync();
-});
-
-el.syncClear.addEventListener("click", () => {
-  setIdentity("");
-  setSupabaseUrl("");
-  setSupabaseKey("");
-  el.identitySelect.value = "";
-  el.supabaseUrlInput.value = "";
-  el.supabaseKeyInput.value = "";
-  updateSyncStatus();
-});
+// --- Left chat panel: Thomas <-> Behazin, with @anchy pulling Anchovy in ---
 
 el.chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const text = el.chatInput.value.trim();
   if (!text) return;
-  addMessage("player", text);
+  addMessage(getIdentity(), text);
   el.chatInput.value = "";
 
   state.mood = clamp(state.mood + 2);
   saveState();
   render();
 
-  setTimeout(async () => {
-    let reply = null;
-    try {
-      reply = await getGeminiReply(text, state);
-    } catch (err) {
-      console.warn("Gemini reply failed, falling back to offline brain:", err);
-    }
-    if (!reply) {
-      reply = getAnchovyReply(text, state);
-    }
-    saveState(); // memory (recent lines / told stories) was updated
-    sayReply(reply);
-  }, 400 + Math.random() * 400);
+  if (MENTION_RE.test(text)) {
+    const asked = text.replace(MENTION_RE, "").trim() || "Hey Anchovy!";
+    setTimeout(async () => {
+      let reply = null;
+      try {
+        reply = await getGeminiReply(asked, state);
+      } catch (err) {
+        console.warn("Gemini reply failed, falling back to offline brain:", err);
+      }
+      if (!reply) {
+        reply = getAnchovyReply(asked, state);
+      }
+      saveState(); // memory (recent lines / told stories) was updated
+      sayReply(reply);
+    }, 400 + Math.random() * 400);
+  }
 });
 
 // --- Idle chatter, so he talks even if you just leave the tab open ---
@@ -426,17 +467,20 @@ setInterval(() => {
 
 // --- Init ---
 
-(function init() {
+(async function init() {
   const wasAway = applyDecay();
   render();
-  renderChatHistory();
   updateRockOption();
   updateSettingsStatus();
-  updateSyncStatus();
+  updateIdentityStatus();
   saveState();
-  if (isSyncConfigured()) {
-    initSharedSync();
-  } else {
+
+  if (getIdentity()) {
+    hideCharScreen();
+    renderChatHistory();
+    await initSharedSync();
     handleWelcomeBack(wasAway);
+  } else {
+    showCharScreen();
   }
 })();

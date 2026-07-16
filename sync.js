@@ -17,10 +17,14 @@
 //   create policy "Allow all reads" on messages for select using (true);
 //   create policy "Allow all inserts" on messages for insert with check (true);
 //
-// Then paste your project URL + anon key into the app's settings panel.
-// Note: the anon key is meant to be used client-side, but with these open
-// policies anyone who has it can read/write this table -- fine for a
-// private two-person gift project, just don't publish the key/URL widely.
+// The project URL + publishable key are baked in below rather than entered
+// per-device. This is safe for the publishable key specifically: it's
+// designed to be exposed client-side and still respects the RLS policies
+// above (it cannot bypass them, unlike the secret key, which must NEVER
+// appear here or anywhere client-side).
+
+const DEFAULT_SUPABASE_URL = "https://vbudvmpibficaqhhnnqh.supabase.co";
+const DEFAULT_SUPABASE_KEY = "sb_publishable_35kRQlGpPg6vtvIXr_JkCQ_jPtx2vgd";
 
 const SUPABASE_URL_STORAGE = "anchovy-supabase-url";
 const SUPABASE_KEY_STORAGE = "anchovy-supabase-key";
@@ -30,7 +34,7 @@ let supabaseClient = null;
 let realtimeChannel = null;
 
 function getSupabaseUrl() {
-  return localStorage.getItem(SUPABASE_URL_STORAGE) || "";
+  return localStorage.getItem(SUPABASE_URL_STORAGE) || DEFAULT_SUPABASE_URL;
 }
 function setSupabaseUrl(url) {
   if (url) localStorage.setItem(SUPABASE_URL_STORAGE, url);
@@ -38,7 +42,7 @@ function setSupabaseUrl(url) {
   resetSupabaseClient();
 }
 function getSupabaseKey() {
-  return localStorage.getItem(SUPABASE_KEY_STORAGE) || "";
+  return localStorage.getItem(SUPABASE_KEY_STORAGE) || DEFAULT_SUPABASE_KEY;
 }
 function setSupabaseKey(key) {
   if (key) localStorage.setItem(SUPABASE_KEY_STORAGE, key);
