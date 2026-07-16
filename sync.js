@@ -1,0 +1,100 @@
+// Optional shared multi-device sync via Supabase. Both devices write into
+// the same `messages` table; a realtime subscription pushes new rows to
+// every connected client, so you and Behazin see the same conversation
+// with Anchovy no matter which device sent the message.
+//
+// Setup (run once in the Supabase SQL editor for your project):
+//
+//   create table messages (
+//     id uuid primary key default gen_random_uuid(),
+//     client_id text, -- lets the sending device recognize its own echo
+//     sender text not null, -- 'thomas' | 'behazin' | 'anchovy'
+//     text text not null,
+//     created_at timestamptz not null default now()
+//   );
+//
+//   alter table messages enable row level security;
+//   create policy "Allow all reads" on messages for select using (true);
+//   create policy "Allow all inserts" on messages for insert with check (true);
+//
+// Then paste your project URL + anon key into the app's settings panel.
+// Note: the anon key is meant to be used client-side, but with these open
+// policies anyone who has it can read/write this table -- fine for a
+// private two-person gift project, just don't publish the key/URL widely.
+
+const SUPABASE_URL_STORAGE = "anchovy-supabase-url";
+const SUPABASE_KEY_STORAGE = "anchovy-supabase-key";
+const IDENTITY_STORAGE = "anchovy-identity"; // "thomas" | "behazin"
+
+let supabaseClient = null;
+let realtimeChannel = null;
+
+function getSupabaseUrl() {
+  return localStorage.getItem(SUPABASE_URL_STORAGE) || "";
+}
+function setSupabaseUrl(url) {
+  if (url) localStorage.setItem(SUPABASE_URL_STORAGE, url);
+  else localStorage.removeItem(SUPABASE_URL_STORAGE);
+}
+function getSupabaseKey() {
+  return localStorage.getItem(SUPABASE_KEY_STORAGE) || "";
+}
+function setSupabaseKey(key) {
+  if (key) localStorage.setItem(SUPABASE_KEY_STORAGE, key);
+  else localStorage.removeItem(SUPABASE_KEY_STORAGE);
+}
+function getIdentity() {
+  return localStorage.getItem(IDENTITY_STORAGE) || "";
+}
+function setIdentity(name) {
+  if (name) localStorage.setItem(IDENTITY_STORAGE, name);
+  else localStorage.removeItem(IDENTITY_STORAGE);
+}
+
+function isSyncConfigured() {
+  return !!(getSupabaseUrl() && getSupabaseKey() && getIdentity());
+}
+
+function getSupabaseClient() {
+  if (!isSyncConfigured()) return null;
+  if (!supabaseClient) {
+    supabaseClient = window.supabase.createClient(getSupabaseUrl(), getSupabaseKey());
+  }
+  return supabaseClient;
+}
+
+async function fetchSharedHistory(limit = 60) {
+  const client = getSupabaseClient();
+  if (!client) return { rows: [], error: null };
+  const { data, error } = await client
+    .from("messages")
+    .select("*")
+    .order("created_at", { ascending: true })
+    .limit(limit);
+  if (error) console.warn("Supabase fetch history failed:", error);
+  return { rows: data || [], error };
+}
+
+async function pushSharedMessage(sender, text, clientId) {
+  const client = getSupabaseClient();
+  if (!client) return { error: null };
+  const { error } = await client.from("messages").insert({ sender, text, client_id: clientId });
+  if (error) console.warn("Supabase insert failed:", error);
+  return { error };
+}
+
+// onInsert receives each new row as it arrives from any device (including
+// this one -- callers should dedupe by id).
+function subscribeToSharedMessages(onInsert) {
+  const client = getSupabaseClient();
+  if (!client) return;
+  if (realtimeChannel) client.removeChannel(realtimeChannel);
+  realtimeChannel = client
+    .channel("messages-changes")
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "messages" },
+      (payload) => onInsert(payload.new)
+    )
+    .subscribe();
+}
