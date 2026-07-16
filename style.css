@@ -561,14 +561,36 @@ body {
     box-shadow: none;
   }
 
+  /* Bottom half is split into two columns: bubbles on the left, the
+     tamagotchi device on the right -- rather than the bubbles floating
+     absolutely above the device, which on a short viewport overlapped the
+     chat panel above it. */
   .device-wrap {
     width: 100%;
     height: 50%;
     display: flex;
+    flex-direction: row;
+  }
+
+  .anchovy-bubbles {
+    position: static;
+    width: 50%;
+    height: 100%;
+    max-width: none;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    justify-content: flex-end;
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  .anchovy-bubbles .anchovy-bubble:last-child::after {
+    content: none;
   }
 
   .device {
-    width: 100%;
+    width: 50%;
     height: 100%;
     border-radius: 0;
     box-shadow: none;
@@ -591,10 +613,5 @@ body {
 
   .avatar {
     max-height: 100%;
-  }
-
-  .anchovy-bubbles {
-    width: min(280px, 90vw);
-    z-index: 5;
   }
 }
