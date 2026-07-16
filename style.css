@@ -5,18 +5,18 @@
 body {
   margin: 0;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #bcefff 0%, #8fd8ef 100%);
+  background: #1c2a22 url("anchy-app-bg.jpg") center/cover no-repeat;
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
 }
 
 .app-layout {
   display: flex;
-  align-items: flex-end;
-  gap: 24px;
-  padding: 20px;
+  align-items: stretch;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  padding: 28px;
+  gap: 28px;
 }
 
 /* --- Character select overlay --- */
@@ -76,113 +76,24 @@ body {
   transform: scale(0.96);
 }
 
-/* --- Left: human-to-human chat panel --- */
-
-.chat-panel {
-  width: 300px;
-  height: 560px;
-  background: #fff8ec;
-  border-radius: 28px;
-  border: 6px solid #4b3a2a;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-}
-
-.chat-panel-header {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-#chat-panel-title {
-  font-weight: bold;
-  color: #4b3a2a;
-  font-size: 14px;
-}
-
-.chat-panel-hint {
-  font-size: 10.5px;
-  color: #6b5638;
-}
-
-.chat-panel .chatlog {
-  flex: 1;
-  height: auto;
-}
-
-.msg.mine {
-  align-self: flex-end;
-  background: #cdeaff;
-  color: #204457;
-  border-bottom-right-radius: 2px;
-}
-
-.msg.theirs {
-  align-self: flex-start;
-  background: #ffe9c7;
-  color: #4b3a2a;
-  border-bottom-left-radius: 2px;
-}
-
-.msg-name {
-  display: block;
-  font-size: 9.5px;
-  font-weight: bold;
-  opacity: 0.65;
-  margin-bottom: 2px;
-}
-
-.msg-time {
-  display: block;
-  font-size: 9px;
-  opacity: 0.55;
-  margin-top: 2px;
-  text-align: right;
-}
-
-/* --- Right: tamagotchi device --- */
-
-.device-wrap {
-  position: relative;
-}
-
-.device {
-  width: 380px;
-  background: #f4e2c9;
-  border-radius: 40px;
-  padding: 22px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), inset 0 0 0 6px #d8b98c;
-}
-
-.screen {
-  position: relative;
-  background: #fff8ec;
-  border-radius: 24px;
-  border: 6px solid #4b3a2a;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+/* --- Settings gear, now floating over the whole app --- */
 
 .settings-wrap {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
   z-index: 30;
 }
 
 #settings-btn {
-  background: none;
+  background: #fff8ec;
   border: none;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1;
-  padding: 4px 6px;
-  border-radius: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
   cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
 #settings-btn:hover {
@@ -191,14 +102,14 @@ body {
 
 .settings-menu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   right: 0;
   width: 220px;
   max-width: 80vw;
   background: #fffdf7;
   border: 2px solid #e3d5b8;
   border-radius: 14px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -262,121 +173,89 @@ body {
   color: #4b3a2a;
 }
 
-.stats {
-  display: flex;
-  gap: 10px;
-}
+/* --- Left: human-to-human chat panel, floating card over the bg image --- */
 
-.stat {
-  flex: 1;
+.chat-panel {
+  width: 33%;
+  min-width: 300px;
+  max-width: 440px;
+  background: #fff8ec;
+  border-radius: 28px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 10px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
 }
 
-.stat-label {
-  font-size: 11px;
-  color: #6b5638;
-  font-weight: bold;
-}
-
-.bar {
-  height: 8px;
-  background: #e3d5b8;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  width: 100%;
-  background: #6bbf59;
-  transition: width 0.4s ease, background 0.4s ease;
-}
-
-.stage {
-  position: relative;
-  height: 140px;
-  background: #d7f0ff;
-  border-radius: 16px;
+.chat-panel-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.avatar {
-  max-height: 120px;
-  max-width: 90%;
-  object-fit: contain;
-  image-rendering: pixelated;
-  transition: transform 0.3s ease;
-}
-
-.avatar.bounce {
-  animation: bounce 0.5s ease;
-}
-
-@keyframes bounce {
-  0% { transform: translateY(0); }
-  30% { transform: translateY(-14px); }
-  60% { transform: translateY(0); }
-  80% { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
-}
-
-/* Anchovy's speech bubbles float above the whole tamagotchi device (not
-   just the avatar stage), positioned absolutely so they don't push the
-   device's layout around. Keeps the last 4; each one fades in on arrival
-   and fades out when it's pushed off the top by a newer one. */
-.anchovy-bubbles {
-  position: absolute;
-  bottom: calc(100% + 14px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 280px;
-  max-width: 90vw;
+.chat-panel-brand {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  pointer-events: none;
+  align-items: center;
+  gap: 8px;
 }
 
-.anchovy-bubble {
-  position: relative;
-  background: #fffdf7;
-  border: 2px solid #e3d5b8;
-  border-radius: 14px;
-  padding: 8px 10px;
-  font-size: 12.5px;
+.brand-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+#chat-panel-title {
+  font-weight: 800;
   color: #4b3a2a;
-  line-height: 1.3;
-  text-align: center;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-  opacity: 0;
-  transform: translateY(8px) scale(0.96);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-.anchovy-bubble.visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
+.chat-panel-hint {
+  font-size: 10.5px;
+  color: #6b5638;
 }
 
-.anchovy-bubble.leaving {
-  opacity: 0;
-  transform: translateY(-8px) scale(0.96);
+.chat-panel .chatlog {
+  flex: 1;
+  height: auto;
 }
 
-/* Little tail under the newest (bottom) bubble, pointing down at Anchovy. */
-.anchovy-bubbles .anchovy-bubble:last-child::after {
-  content: "";
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 8px solid transparent;
-  border-top-color: #fffdf7;
+.msg.mine {
+  align-self: flex-end;
+  background: #ffdbc6;
+  color: #204457;
+  border-bottom-right-radius: 2px;
+}
+
+.msg.theirs {
+  align-self: flex-start;
+  background: #ffe9c7;
+  color: #4b3a2a;
+  border-bottom-left-radius: 2px;
+}
+
+.msg-name {
+  display: block;
+  font-size: 9.5px;
+  font-weight: bold;
+  opacity: 0.65;
+  margin-bottom: 2px;
+}
+
+.msg-time {
+  display: block;
+  font-size: 9px;
+  opacity: 0.55;
+  margin-top: 2px;
+  text-align: right;
 }
 
 .chatlog {
@@ -399,40 +278,327 @@ body {
   line-height: 1.3;
 }
 
-.actions {
+.chat-form {
   display: flex;
   gap: 8px;
 }
 
-.actions > button,
-.actions > .gift-wrap {
+.chat-form input {
   flex: 1;
-}
-
-.actions button {
-  width: 100%;
-  padding: 8px 4px;
-  border: none;
+  padding: 8px 10px;
   border-radius: 10px;
-  background: #e9a24a;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
+  border: 2px solid #e3d5b8;
   font-size: 13px;
 }
 
-.actions button:active {
+.chat-form button {
+  width: 48px;
+  border: none;
+  border-radius: 12px;
+  background: #4b3a2a;
+  color: #fff;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-form button:active {
   transform: scale(0.96);
 }
 
-.gift-wrap {
+/* --- Right: the "Tamagotchi" stage, floating loose over the bg image
+   instead of living inside a device frame. --- */
+
+.stage-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 40px;
+  padding: 6px 10px 0 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  min-width: 84px;
+}
+
+.stat-label {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.02em;
+}
+
+.bar {
+  height: 4px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.bar-fill {
+  height: 100%;
+  width: 100%;
+  background: #ffd446;
+  transition: width 0.4s ease, background 0.4s ease;
+}
+
+.middle-row {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* Anchovy's speech bubbles float loose in this half of the screen -- no
+   background box of their own -- but are pushed down and right so the
+   newest one lands right next to his head instead of drifting to the
+   bottom-left corner, and the stack grows outward (older ones) from there. */
+.bubble-zone {
+  width: 50%;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 22vh 24px 20px 20px;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.anchovy-bubbles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+/* Styled to match the human chat bubbles (.msg) -- same colors, no border,
+   just a bit more shadow since these float directly over the busy bg image
+   instead of sitting on a flat panel. */
+.anchovy-bubble {
+  max-width: 240px;
+  background: #ffe9c7;
+  border-radius: 14px;
+  border-bottom-right-radius: 2px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #4b3a2a;
+  line-height: 1.35;
+  text-align: left;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.32);
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.anchovy-bubble .msg-time {
+  color: #4b3a2a;
+}
+
+.anchovy-bubble.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.anchovy-bubble.leaving {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.96);
+}
+
+.character-zone {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-bottom: 24px;
+}
+
+.hover-hint {
+  font-size: 10.5px;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.avatar-wrap {
   position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.avatar {
+  max-height: 48vh;
+  max-width: 90%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 20px 24px rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.avatar.bounce {
+  animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-14px); }
+  60% { transform: translateY(0); }
+  80% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+/* Friendship rocks pile up at his feet, one per rock gifted. Positions are
+   randomized (with a minimum spacing) so they look scattered rather than
+   stacked in a neat row or exactly on top of each other. */
+.rock-pile {
+  position: absolute;
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 40px;
+  pointer-events: none;
+}
+
+.rock-img {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
+}
+
+.rock-img.pop-in {
+  animation: rock-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes rock-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.3); }
+  60% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1.15); }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1); }
+}
+
+/* Hovering the artwork reveals the three action buttons, cascading in one
+   after another along a rounded path that hugs the outline of his head --
+   top of the head, round to the right side, down to the cheek/shoulder --
+   rather than a straight stack. Each gets its own point on that arc. */
+.action-buttons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.action-buttons > * {
+  pointer-events: auto;
+}
+
+#btn-feed {
+  position: absolute;
+  top: -4%;
+  right: 8%;
+}
+
+#btn-nap {
+  position: absolute;
+  top: 14%;
+  right: -12%;
+}
+
+.gift-wrap {
+  position: absolute;
+  top: 32%;
+  right: 2%;
+}
+
+.fab {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border: none;
+  border-radius: 999px;
+  background: #ffd446;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(-10px) scale(0.7);
+  transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.2s ease;
+}
+
+.avatar-wrap:hover .fab,
+.avatar-wrap:focus-within .fab {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ID-based (not :nth-child) because #gift-btn sits one level deeper, inside
+   .gift-wrap -- needed there so app.js's outside-click handler can treat the
+   button+menu as one region via closest(".gift-wrap"). */
+.avatar-wrap:hover #btn-feed,
+.avatar-wrap:focus-within #btn-feed { transition-delay: 0s; }
+.avatar-wrap:hover #btn-nap,
+.avatar-wrap:focus-within #btn-nap { transition-delay: 0.12s; }
+.avatar-wrap:hover #gift-btn,
+.avatar-wrap:focus-within #gift-btn { transition-delay: 0.24s; }
+
+.fab:hover {
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.35);
+}
+
+.fab:active {
+  transform: translateY(0) scale(0.94);
+}
+
+.fab-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.fab-label {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translate(-6px, -50%);
+  white-space: nowrap;
+  background: rgba(75, 58, 42, 0.92);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.fab:hover .fab-label,
+.fab:focus-visible .fab-label {
+  opacity: 1;
+  transform: translate(0, -50%);
 }
 
 .gift-menu {
   position: absolute;
-  bottom: calc(100% + 8px);
-  right: 0;
+  right: calc(100% + 14px);
+  bottom: 0;
   width: 260px;
   max-width: 85vw;
   background: #fffdf7;
@@ -507,40 +673,10 @@ body {
   font-size: 12px;
 }
 
-.chat-form {
-  display: flex;
-  gap: 8px;
-}
-
-.chat-form input {
-  flex: 1;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 2px solid #e3d5b8;
-  font-size: 13px;
-}
-
-.chat-form button {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 10px;
-  background: #4b3a2a;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-/* --- Mobile: stack chat on top, tamagotchi on bottom, each half the
-   viewport, edge-to-edge width instead of the fixed 300px/380px desktop
-   boxes. --- */
+/* --- Mobile: Anchovy + stats on top half, chat sheet on bottom half. --- */
 @media (max-width: 700px) {
   html, body {
     height: 100%;
-  }
-
-  body {
-    align-items: stretch;
-    justify-content: flex-start;
   }
 
   .app-layout {
@@ -553,65 +689,131 @@ body {
     gap: 0;
   }
 
-  .chat-panel {
+  .settings-wrap {
+    top: 12px;
+    right: 12px;
+  }
+
+  .stage-panel {
+    order: 1;
     width: 100%;
     height: 50%;
-    border-radius: 0;
-    border-width: 0 0 4px;
-    box-shadow: none;
+    padding-top: 14px;
   }
 
-  /* Bottom half is split into two columns: bubbles on the left, the
-     tamagotchi device on the right -- rather than the bubbles floating
-     absolutely above the device, which on a short viewport overlapped the
-     chat panel above it. */
-  .device-wrap {
-    width: 100%;
-    height: 50%;
-    display: flex;
-    flex-direction: row;
+  /* Packed to the left with fixed spacing instead of space-between, now
+     that the bars have a real width -- space-between would just shove
+     "Mood" back toward the corner gear button again. */
+  .stats-row {
+    justify-content: flex-start;
+    padding: 0 16px;
+    gap: 12px;
   }
 
-  .anchovy-bubbles {
-    position: static;
-    width: 50%;
-    height: 100%;
-    max-width: none;
-    left: auto;
-    bottom: auto;
-    transform: none;
-    justify-content: flex-end;
-    padding: 10px;
-    overflow: hidden;
+  .stat {
+    min-width: 0;
+    width: 90px;
   }
 
-  .anchovy-bubbles .anchovy-bubble:last-child::after {
-    content: none;
+  .stat-label {
+    font-size: 13px;
   }
 
-  .device {
-    width: 50%;
-    height: 100%;
-    border-radius: 0;
-    box-shadow: none;
-    display: flex;
+  .middle-row {
+    padding-right: 12px;
+  }
+
+  /* Side-by-side (not overlapping) so Anchovy stays visible -- just a
+     60/40 split instead of the old even 50/50, giving the bubbles more
+     room without covering him up. */
+  .bubble-zone {
+    width: 60%;
     flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+    padding: 6vh 8px 10px 10px;
   }
 
-  .screen {
-    flex: 1;
-    height: auto;
-    min-height: 0;
-    border-radius: 0;
+  .anchovy-bubble {
+    max-width: 90%;
   }
 
-  .stage {
-    flex: 1;
-    height: auto;
-    min-height: 0;
+  .character-zone {
+    width: 40%;
+    padding-bottom: 10px;
   }
 
   .avatar {
-    max-height: 100%;
+    max-height: 30vh;
+  }
+
+  /* No hover on touch, so there's no reveal to arc around the head --
+     the buttons just sit next to the bird permanently as plain icon dots. */
+  .action-buttons {
+    position: static;
+    inset: auto;
+    display: flex;
+    flex-direction: column;
+    margin-left: 14px;
+    gap: 12px;
+  }
+
+  #btn-feed,
+  #btn-nap,
+  .gift-wrap {
+    position: relative;
+    top: auto;
+    right: auto;
+  }
+
+  .avatar-wrap {
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+  }
+
+  .fab {
+    opacity: 1;
+    transform: none;
+    width: 40px;
+    height: 40px;
+    transition: transform 0.15s ease;
+  }
+
+  .fab-icon {
+    font-size: 17px;
+  }
+
+  .fab-label {
+    display: none;
+  }
+
+  /* "Hover" doesn't mean anything on touch, so skip the hint there. */
+  .hover-hint {
+    display: none;
+  }
+
+  .gift-menu {
+    right: calc(100% + 10px);
+  }
+
+  .chat-panel {
+    order: 2;
+    width: 100%;
+    height: 50%;
+    min-width: 0;
+    max-width: none;
+    border-radius: 26px 26px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  /* The head+title lockup is a web-only touch; on mobile just the hint
+     text stays, right where the input expects it. */
+  .chat-panel-brand {
+    display: none;
+  }
+
+  .chat-panel-header {
+    justify-content: flex-start;
   }
 }
