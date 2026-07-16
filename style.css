@@ -313,13 +313,17 @@ body {
   100% { transform: translateY(0); }
 }
 
-/* Anchovy's speech bubble, floating over the tamagotchi like it's coming
-   right out of him -- fades in/out rather than sitting in a permanent log. */
+/* Anchovy's speech bubbles, stacked above the tamagotchi (never over the
+   avatar itself). Keeps the last 4; each one fades in on arrival and fades
+   out when it's pushed off the top by a newer one. */
+.anchovy-bubbles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .anchovy-bubble {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
+  position: relative;
   background: #fffdf7;
   border: 2px solid #e3d5b8;
   border-radius: 14px;
@@ -328,15 +332,24 @@ body {
   color: #4b3a2a;
   line-height: 1.3;
   text-align: center;
-  z-index: 10;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
   opacity: 0;
-  transform: translateY(-6px) scale(0.96);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  pointer-events: none;
+  transform: translateY(8px) scale(0.96);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.anchovy-bubble::after {
+.anchovy-bubble.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.anchovy-bubble.leaving {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.96);
+}
+
+/* Little tail under the newest (bottom) bubble, pointing down at Anchovy. */
+.anchovy-bubbles .anchovy-bubble:last-child::after {
   content: "";
   position: absolute;
   bottom: -8px;
@@ -344,11 +357,6 @@ body {
   transform: translateX(-50%);
   border: 8px solid transparent;
   border-top-color: #fffdf7;
-}
-
-.anchovy-bubble.visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
 }
 
 .chatlog {
