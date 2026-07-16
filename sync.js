@@ -95,9 +95,13 @@ async function fetchSharedHistory(limit = 60) {
 async function pushSharedMessage(sender, text, clientId) {
   const client = getSupabaseClient();
   if (!client) return { error: null };
-  const { error } = await client.from("messages").insert({ sender, text, client_id: clientId });
+  const { data, error } = await client
+    .from("messages")
+    .insert({ sender, text, client_id: clientId })
+    .select()
+    .single();
   if (error) console.warn("Supabase insert failed:", error);
-  return { error };
+  return { row: data, error };
 }
 
 // onInsert receives each new row as it arrives from any device (including

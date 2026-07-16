@@ -160,8 +160,24 @@ function addMessage(who, text, opts = {}) {
   if (!opts.fromRemote && !opts.skipSync && isSyncConfigured()) {
     const clientId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     sentClientIds.add(clientId);
-    pushSharedMessage(who, text, clientId).then(({ error }) => {
-      if (error) showSyncError(`Send failed: ${error.message || error}`);
+    pushSharedMessage(who, text, clientId).then(({ row, error }) => {
+      if (error) {
+        showSyncError(`Send failed: ${error.message || error}`);
+        return;
+      }
+      // Reconcile this message's timestamp with the server's authoritative
+      // created_at now, instead of leaving this device's own Date.now()
+      // guess in place until the next refresh recomputes it from Supabase
+      // -- that gap (network latency, clock drift) is what made timestamps
+      // appear to jump after a reload.
+      if (row && row.created_at) {
+        const oldTs = msg.ts;
+        msg.ts = new Date(row.created_at).getTime();
+        if (latestHumanMsgEl && Number(latestHumanMsgEl.dataset.ts) === oldTs) {
+          latestHumanMsgEl.dataset.ts = msg.ts;
+        }
+        saveState();
+      }
     });
   }
 }
