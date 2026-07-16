@@ -14,7 +14,7 @@ body {
 
 .app-layout {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 24px;
   padding: 20px;
 }
@@ -136,6 +136,10 @@ body {
 }
 
 /* --- Right: tamagotchi device --- */
+
+.device-wrap {
+  position: relative;
+}
 
 .device {
   width: 380px;
@@ -313,13 +317,21 @@ body {
   100% { transform: translateY(0); }
 }
 
-/* Anchovy's speech bubbles, stacked above the tamagotchi (never over the
-   avatar itself). Keeps the last 4; each one fades in on arrival and fades
-   out when it's pushed off the top by a newer one. */
+/* Anchovy's speech bubbles float above the whole tamagotchi device (not
+   just the avatar stage), positioned absolutely so they don't push the
+   device's layout around. Keeps the last 4; each one fades in on arrival
+   and fades out when it's pushed off the top by a newer one. */
 .anchovy-bubbles {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  max-width: 90vw;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  pointer-events: none;
 }
 
 .anchovy-bubble {

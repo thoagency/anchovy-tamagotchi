@@ -57,6 +57,8 @@ function resetSupabaseClient() {
   if (realtimeChannel && supabaseClient) supabaseClient.removeChannel(realtimeChannel);
   realtimeChannel = null;
   supabaseClient = null;
+  stopMessagePolling();
+  lastPolledCreatedAt = null;
 }
 function getIdentity() {
   return localStorage.getItem(IDENTITY_STORAGE) || "";
@@ -112,4 +114,37 @@ function subscribeToSharedMessages(onInsert) {
       (payload) => onInsert(payload.new)
     )
     .subscribe();
+}
+
+let pollTimer = null;
+let lastPolledCreatedAt = null;
+
+// Backstop for the realtime subscription above: if a project's `messages`
+// table was never actually added to the `supabase_realtime` publication (an
+// easy step to miss in the Supabase dashboard/SQL editor), postgres_changes
+// silently never fires and the app would otherwise only pick up new
+// messages on a hard refresh. Polling every few seconds guarantees delivery
+// either way; onInsert callers dedupe by row id, so overlap with realtime
+// is harmless.
+function startMessagePolling(onInsert, intervalMs = 4000) {
+  stopMessagePolling();
+  pollTimer = setInterval(async () => {
+    const client = getSupabaseClient();
+    if (!client) return;
+    let query = client.from("messages").select("*").order("created_at", { ascending: true });
+    if (lastPolledCreatedAt) query = query.gt("created_at", lastPolledCreatedAt);
+    const { data, error } = await query;
+    if (error || !data || !data.length) return;
+    lastPolledCreatedAt = data[data.length - 1].created_at;
+    data.forEach((row) => onInsert(row));
+  }, intervalMs);
+}
+
+function stopMessagePolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = null;
+}
+
+function markPolledUpTo(createdAt) {
+  if (createdAt) lastPolledCreatedAt = createdAt;
 }

@@ -33,67 +33,69 @@
       </form>
     </div>
 
-    <div class="device">
-      <div class="screen">
-        <div class="settings-wrap">
-          <button type="button" id="settings-btn" title="Settings">⚙️</button>
-          <div id="settings-menu" class="settings-menu hidden">
-            <label for="gemini-key-input" class="settings-label">Gemini API key</label>
-            <input id="gemini-key-input" type="password" placeholder="Paste your key here" autocomplete="off" />
-            <div id="settings-status" class="settings-status">Offline mode (no key set)</div>
-            <div class="settings-buttons">
-              <button type="button" id="settings-save">Save</button>
-              <button type="button" id="settings-clear">Clear</button>
-            </div>
+    <div class="device-wrap">
+      <div id="anchovy-bubbles" class="anchovy-bubbles"></div>
 
-            <div class="gift-divider"></div>
+      <div class="device">
+        <div class="screen">
+          <div class="settings-wrap">
+            <button type="button" id="settings-btn" title="Settings">⚙️</button>
+            <div id="settings-menu" class="settings-menu hidden">
+              <label for="gemini-key-input" class="settings-label">Gemini API key</label>
+              <input id="gemini-key-input" type="password" placeholder="Paste your key here" autocomplete="off" />
+              <div id="settings-status" class="settings-status">Offline mode (no key set)</div>
+              <div class="settings-buttons">
+                <button type="button" id="settings-save">Save</button>
+                <button type="button" id="settings-clear">Clear</button>
+              </div>
 
-            <span class="settings-label">Playing as</span>
-            <div id="identity-status" class="settings-status">—</div>
-            <div class="settings-buttons">
-              <button type="button" id="identity-switch">Switch</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="stats">
-          <div class="stat">
-            <span class="stat-label">Hunger</span>
-            <div class="bar"><div id="bar-hunger" class="bar-fill"></div></div>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Energy</span>
-            <div class="bar"><div id="bar-energy" class="bar-fill"></div></div>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Mood</span>
-            <div class="bar"><div id="bar-mood" class="bar-fill"></div></div>
-          </div>
-        </div>
-
-        <div id="anchovy-bubbles" class="anchovy-bubbles"></div>
-
-        <div class="stage">
-          <img id="avatar" class="avatar" src="anchy.webp" alt="Anchovy">
-        </div>
-
-        <div class="actions">
-          <button id="btn-feed" title="Feed him a snack">🐟 Feed</button>
-          <button id="btn-nap" title="Let him nap">💤 Nap</button>
-          <div class="gift-wrap">
-            <button type="button" id="gift-btn" title="Give him a gift">🎁 Gift</button>
-            <div id="gift-menu" class="gift-menu hidden">
-              <ul class="gift-list">
-                <li data-gift="hug"><span class="gift-emoji">🤗</span>Hug</li>
-                <li data-gift="lizard"><span class="gift-emoji">🦎</span>A pet lizard</li>
-                <li data-gift="hat"><span class="gift-emoji">🎩</span>Hat</li>
-                <li data-gift="rock"><span class="gift-emoji">🪨</span><span id="gift-rock-label">Friendship Rock #1</span></li>
-              </ul>
               <div class="gift-divider"></div>
-              <form id="gift-custom-form" class="gift-custom-form">
-                <input id="gift-custom" type="text" placeholder="Type your own gift..." autocomplete="off" />
-                <button type="submit">Give</button>
-              </form>
+
+              <span class="settings-label">Playing as</span>
+              <div id="identity-status" class="settings-status">—</div>
+              <div class="settings-buttons">
+                <button type="button" id="identity-switch">Switch</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-label">Hunger</span>
+              <div class="bar"><div id="bar-hunger" class="bar-fill"></div></div>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Energy</span>
+              <div class="bar"><div id="bar-energy" class="bar-fill"></div></div>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Mood</span>
+              <div class="bar"><div id="bar-mood" class="bar-fill"></div></div>
+            </div>
+          </div>
+
+          <div class="stage">
+            <img id="avatar" class="avatar" src="anchy.webp" alt="Anchovy">
+          </div>
+
+          <div class="actions">
+            <button id="btn-feed" title="Feed him a snack">🐟 Feed</button>
+            <button id="btn-nap" title="Let him nap">💤 Nap</button>
+            <div class="gift-wrap">
+              <button type="button" id="gift-btn" title="Give him a gift">🎁 Gift</button>
+              <div id="gift-menu" class="gift-menu hidden">
+                <ul class="gift-list">
+                  <li data-gift="hug"><span class="gift-emoji">🤗</span>Hug</li>
+                  <li data-gift="lizard"><span class="gift-emoji">🦎</span>A pet lizard</li>
+                  <li data-gift="hat"><span class="gift-emoji">🎩</span>Hat</li>
+                  <li data-gift="rock"><span class="gift-emoji">🪨</span><span id="gift-rock-label">Friendship Rock #1</span></li>
+                </ul>
+                <div class="gift-divider"></div>
+                <form id="gift-custom-form" class="gift-custom-form">
+                  <input id="gift-custom" type="text" placeholder="Type your own gift..." autocomplete="off" />
+                  <button type="submit">Give</button>
+                </form>
+              </div>
             </div>
           </div>
         </div>

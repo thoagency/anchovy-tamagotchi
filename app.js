@@ -60,6 +60,10 @@ const el = {
 // echo back through the realtime subscription.
 const sentClientIds = new Set();
 
+// Row ids already rendered, so a row delivered twice (once by the realtime
+// subscription, once by the polling backstop) only shows up once.
+const seenRowIds = new Set();
+
 const BUBBLE_LIMIT = 4;
 const BUBBLE_TRANSITION_MS = 350;
 
@@ -281,11 +285,16 @@ function hydrateChatHistory(rows) {
     text: r.text,
     ts: new Date(r.created_at).getTime(),
   }));
+  rows.forEach((r) => { if (r.id) seenRowIds.add(r.id); });
   renderChatHistory();
   saveState();
 }
 
 function handleRemoteInsert(row) {
+  if (row.id) {
+    if (seenRowIds.has(row.id)) return; // already rendered (realtime + poll overlap)
+    seenRowIds.add(row.id);
+  }
   if (row.client_id && sentClientIds.has(row.client_id)) return; // our own echo
   addMessage(row.sender, row.text, { fromRemote: true });
   if (row.sender === "anchovy") bounceAvatar();
@@ -297,8 +306,12 @@ async function initSharedSync() {
     showSyncError(`Connection failed: ${error.message || error}`);
     return;
   }
-  if (rows.length) hydrateChatHistory(rows);
+  if (rows.length) {
+    hydrateChatHistory(rows);
+    markPolledUpTo(rows[rows.length - 1].created_at);
+  }
   subscribeToSharedMessages(handleRemoteInsert);
+  startMessagePolling(handleRemoteInsert);
 }
 
 // --- Actions ---
