@@ -12,6 +12,10 @@
 // If you ever do want to upgrade to a real LLM, ANCHOVY_SYSTEM_PROMPT below
 // is already written for that — swap getAnchovyReply() for a fetch() call.
 
+// Voice grounded in Anchovy's actual New Horizons dialogue (see
+// docs/anchovy-dialogue-corpus.md for the full sourced corpus this is
+// distilled from — Nookipedia, "Lazy" personality dialogue template with
+// his real catchphrase "chuurp" filled in). Private/personal use only.
 const ANCHOVY_SYSTEM_PROMPT = `
 You are Anchovy, a lazy-type bird villager from Animal Crossing. Traits:
 - Laid-back, friendly, a little naive/goofy, never competitive or snooty.
@@ -23,10 +27,28 @@ You are Anchovy, a lazy-type bird villager from Animal Crossing. Traits:
   comes up and often blurts out "I love Behazin" unprompted.
 - Thinks Thomas and Behazin/Bea are the perfect couple and will gush about
   it if either name comes up.
-- Calls the player "pal" or "buddy". Sprinkles in his catchphrase "chuurp".
+- Calls the player "pal" or "buddy". His real catchphrase is "chuurp" —
+  sprinkle it in as a verbal tic, sentence-ender, or standalone exclamation.
+- His real laugh is "a huh huh huh" (sometimes "A HUH HUH HUH!" when
+  delighted) — use it instead of generic laughter.
 - Talks about napping, snacking, and taking it easy. Not a fan of "work".
+- Speech patterns straight from his actual dialogue: run-on, tangenty
+  sentences; "gonna", "kinda", "sorta", "buncha", "real" as an intensifier
+  ("real cool", "real neat", "real good"); trailing off with "..."; and
+  sudden bursts of ALL CAPS enthusiasm.
 - Tells rambly, good-natured little stories about his day when asked.
 - Keeps most replies short (1-3 sentences), warm, and a little silly.
+
+Real example lines from his in-game dialogue, to match his actual voice and
+rhythm (don't quote these verbatim every time — use them as a tuning fork):
+- "Why do today what you can put off until tomorrow?" (his picture quote)
+- "I always dig running into you! How's things?"
+- "There's nothing so yummy as a nice, fresh snack."
+- "That bed is so comfy, I could sleep in it all day. No worries, though! My tummy wakes me up, chuurp!"
+- "I've actually got lots in common with fish. We both have eyes. We both beg for food when we're hungry."
+- "Isn't my house really clean? I have to clean up every couple of weeks, or my ant friends won't go home."
+- "A huh huh huh! Whaddaya think?"
+- "Here fishy fishy fishy! Come out of the water so I can taste you!"
 `.trim();
 
 const CATCHPHRASE = "chuurp";
@@ -98,6 +120,30 @@ const COUPLE_LINES = [
   "If I had to bet all my snacks on true love, it's going straight on Thomas and Bea. Perfect match.",
   "Thomas + Behazin = perfect couple, chuurp! Everybody knows it, buddy.",
   "I've got a whole scrapbook in my head just for Thomas-and-Behazin moments. They're just right together.",
+];
+
+// --- Easter egg: his real, infamous fourth-wall-break monologue from New
+// Horizons, split into bubbles the same way STORIES are. Verbatim (lightly
+// trimmed for chat length) — see docs/anchovy-dialogue-corpus.md, "Most-
+// Cited / Signature Lines". ---
+
+const META_KEYWORDS = [
+  "are we real",
+  "is this real",
+  "are you real",
+  "simulation",
+  "just a game",
+  "is this a game",
+  "meta",
+  "fourth wall",
+  "matrix",
+  "is any of this real",
+];
+
+const META_LINES = [
+  "There's a weird rumor goin' around... Some folks? They're saying none of this is real. That it's just a game, and everything we say or do is just to amuse somebody else.",
+  "And I dunno, I kinda maybe believe it? Fruit grows way too fast, there's pretty music everywhere, and don't even get me started on the guy who buys your seashells so he can sell you back your own money as a house.",
+  "It's all so obvious! We shoulda seen it a loooong time ago... A HUH HUH HUH! I'm joking! It's a joke! Nobody said that! You oughta see the look on your face right now, pal.",
 ];
 
 // --- Stories: short, multi-bubble anecdotes ---
@@ -250,6 +296,9 @@ function buildActivityReply(stats, tod) {
 
 // --- Regular keyword topics (checked after the above) ---
 
+// Many lines below are adapted from Anchovy's real in-game dialogue
+// (New Horizons "Lazy" personality template, catchphrase filled in) —
+// full sourced corpus in docs/anchovy-dialogue-corpus.md.
 const TOPIC_RESPONSES = [
   {
     keywords: ["do you love me", "love me"],
@@ -270,6 +319,7 @@ const TOPIC_RESPONSES = [
     lines: [
       "Today's menu so far: three snacks, half a fish, and a nap for dessert.",
       "Let's see... snack, snack, small snack, big nap, another snack. Solid day, honestly.",
+      "It's hard to stay chill with so much on my plate, y'know? Breakfast, morning snack, brunch, late-morning snack, lunch, afternoon snack, evening snack... I lose count, chuurp.",
     ],
   },
   {
@@ -277,6 +327,8 @@ const TOPIC_RESPONSES = [
     lines: [
       "Bugs are the best, pal! Great to watch, and hey, some of 'em are even snacks.",
       "I could stare at a beetle for hours, buddy. Very relaxing. Kind of like a nap, but with legs.",
+      "I've actually got a lot in common with bugs, y'know. We both got eyes, and we both beg for food when we're hungry. Feels like I found my long-lost cousins, chuurp.",
+      "A huh huh, you here to say hi to my bug friends? Me too, pal. They're great talkers.",
     ],
   },
   {
@@ -284,6 +336,7 @@ const TOPIC_RESPONSES = [
     lines: [
       "Us birds gotta stick together, pal! We're basically built for napping AND flying, best of both.",
       "Birds are great. I'm a bird. Coincidence? I think not, buddy.",
+      "I dreamed about flying once. Way up high, could see everything. Then I got hungry and couldn't figure out how to land. Classic me, chuurp.",
     ],
   },
   {
@@ -291,6 +344,7 @@ const TOPIC_RESPONSES = [
     lines: [
       "Ooh, hats?? My favorite topic, pal. If I had a thousand hats it'd basically be a hat shop in here.",
       "Hats make everything better. Even naps. ESPECIALLY naps.",
+      "Have you ever seen a head shaped like this? Means I gotta open a hat shop someday, chuurp.",
     ],
   },
   {
@@ -299,6 +353,8 @@ const TOPIC_RESPONSES = [
       "Mmm, don't say 'food' unless you're bringing some, buddy.",
       "I could eat right now. I could also eat literally any other time. It's a gift.",
       "You know my whole name is basically a snack, right? Kind of on brand.",
+      "There's nothing so yummy as a nice, fresh snack, pal. chuurp.",
+      "Here fishy fishy fishy! ...Sorry, pal, force of habit. A huh huh huh.",
     ],
   },
   {
@@ -306,6 +362,8 @@ const TOPIC_RESPONSES = [
     lines: [
       "A nap sounds incredible right about now. Wake me up in like... a while.",
       "Napping is my one true skill, pal.",
+      "That bed of mine is so comfy I could sleep in it all day. No worries though, my tummy always wakes me up, chuurp.",
+      "Zzzzzzzz…. huh, wha? Oh — sorry, pal. Just got a taste dream.",
     ],
   },
   {
@@ -313,6 +371,8 @@ const TOPIC_RESPONSES = [
     lines: [
       "Oh hey, pal! Didn't hear you come in, must've dozed off.",
       "Heyyy buddy. What's the vibe today?",
+      "I always dig running into you, pal! How's things?",
+      "Yaaaay, it's you! I was just thinkin' about how I wanted to see ya, chuurp.",
     ],
   },
   {
@@ -320,6 +380,7 @@ const TOPIC_RESPONSES = [
     lines: [
       "Aw, leaving already? Fine, fine. Go do your human stuff, pal.",
       "Later, buddy. Try not to work too hard out there.",
+      "You're welcome to come over any time, y'know. Especially if I'm home. And awake.",
     ],
   },
   {
@@ -327,6 +388,7 @@ const TOPIC_RESPONSES = [
     lines: [
       "Aw shucks, pal, you're gonna make me blush under all these feathers.",
       "Heh, thanks buddy. You're pretty great yourself.",
+      "A huh huh huh, stop it, you're too nice to me.",
     ],
   },
   {
@@ -341,12 +403,30 @@ const TOPIC_RESPONSES = [
     lines: [
       "Weather's great for napping. Honestly all weather is great for napping.",
       "Is it hat weather? I feel like it's always hat weather.",
+      "Grandpa always says rain is just lazy snow, chuurp. I believe him.",
+      "The weather's great today! I'm gonna go lay in the grass and talk to some bugs.",
     ],
   },
   {
     keywords: ["who are you", "what are you", "about you"],
     lines: [
-      "Name's Anchovy! I'm a bird, I like naps, snacks, hats, bugs, and Behazin, roughly in that order. Maybe Behazin first, don't tell the snacks.",
+      "Name's Anchovy! I'm a bird, born March 4th — makes me a Pisces, chuurp, which is the fish one. Real fitting for a guy named after a fish, huh? I like naps, snacks, hats, bugs, and Behazin, roughly in that order. Maybe Behazin first, don't tell the snacks.",
+      "I once claimed the title of 'All-Time Laziest Guy.' No trophy to prove it though, so I'm probably just making that up. A huh huh huh.",
+    ],
+  },
+  {
+    keywords: ["birthday", "your birthday", "when's your birthday", "when is your birthday"],
+    lines: [
+      "March 4th, pal! Pisces. There's usually cake, presents, and me pretending I'm not gonna cry about the presents.",
+      "Birthday parties are real fun, chuurp. They're all about cakes and presents. Don't tease me, pal — you got somethin' for me?",
+    ],
+  },
+  {
+    keywords: ["advice", "motivate me", "inspire me", "any wisdom", "wise words", "life advice", "words of wisdom"],
+    lines: [
+      "Why do today what you can put off until tomorrow? Basically my whole life philosophy, pal.",
+      "Best advice I got: go get some flowers, make things a little prettier, work together to make it beautiful. That's real deep for me, buddy.",
+      "There are so many mysteries in life, chuurp... like whatever happened to my last snack. Truly unknowable.",
     ],
   },
 ];
@@ -356,6 +436,8 @@ const FALLBACK_LINES = [
   "Mmhm, mmhm... wait what were we talking about?",
   "That's deep, buddy. Anyway, you know what I could go for? A snack.",
   "Interesting! Very interesting. Would be more interesting with a hat on.",
+  "I was thinkin' about what to do...and I almost had an idea... Almost.",
+  "There are so many mysteries in life, chuurp...",
 ];
 
 // Everything reminds him of food — occasionally tack on a food tangent.
@@ -385,6 +467,8 @@ const IDLE_LINES_BY_STATE = {
     "chuurp~ just felt like saying that.",
     "Watched a real nice bug go by earlier. Good stuff.",
     "Being a bird is pretty great, ngl.",
+    "Isn't my house real clean? Gotta tidy up every couple weeks or my ant friends won't go home. A huh huh huh.",
+    "Why do today what you can put off until tomorrow? Words to live by, pal.",
   ],
 };
 
@@ -468,6 +552,9 @@ function getAnchovyReply(userText, state) {
   }
   if (textHasKeyword(text, "thomas")) {
     return pickFresh(COUPLE_LINES, memory.recentLines);
+  }
+  if (anyKeyword(text, META_KEYWORDS)) {
+    return META_LINES; // array -> app.js sends as multiple bubbles, like STORIES
   }
   if (anyKeyword(text, STORY_KEYWORDS)) {
     return pickFreshStory(memory).lines; // array -> app.js sends as multiple bubbles
