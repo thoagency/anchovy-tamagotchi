@@ -132,9 +132,13 @@ function bounceAvatar() {
 // opts.skipSync: true for local-only flavor text (feed/nap/gift/idle) that
 // shouldn't show up on the other person's device. opts.fromRemote: true
 // when hydrating a message that arrived via realtime (already in Supabase,
-// so must not be pushed back up).
+// so must not be pushed back up). opts.ts: use this device's own send time
+// only when it doesn't matter; for anything remote, pass the message's
+// actual `created_at` so the shown time doesn't depend on when this device
+// happened to receive it (which drifts with poll timing / tab throttling
+// and would otherwise disagree with what a refresh recomputes from Supabase).
 function addMessage(who, text, opts = {}) {
-  const msg = { who, text, ts: Date.now() };
+  const msg = { who, text, ts: opts.ts || Date.now() };
   state.chatHistory.push(msg);
   if (state.chatHistory.length > CHAT_HISTORY_CAP) {
     const dropped = state.chatHistory.shift();
@@ -331,7 +335,7 @@ function handleRemoteInsert(row) {
     seenRowIds.add(row.id);
   }
   if (row.client_id && sentClientIds.has(row.client_id)) return; // our own echo
-  addMessage(row.sender, row.text, { fromRemote: true });
+  addMessage(row.sender, row.text, { fromRemote: true, ts: new Date(row.created_at).getTime() });
   if (row.sender === "anchovy") bounceAvatar();
 }
 
