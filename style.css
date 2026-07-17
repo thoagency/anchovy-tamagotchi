@@ -650,13 +650,21 @@ body.bubble-v2 .gamebox {
 
 .gamebox-body {
   position: relative;
-  /* Taller floor so longer replies have real room before the box needs
-     to grow at all -- width is untouched, only the vertical baseline
-     changed. The clip-path ellipses are proportional (objectBoundingBox
-     units), so they scale with whatever height this ends up being. */
-  min-height: 260px;
+  /* A floor this tall was making short one-liners look mostly-empty --
+     the box already grows to fit long text on its own, so the real fix
+     for long text is more *horizontal* padding (below), not a taller
+     resting size. This is back to something close to a short message's
+     natural size. */
+  min-height: 170px;
   background: #fdf8ec;
-  padding: 28px 62px;
+  /* Extra side padding keeps wrapped text well clear of the curved
+     edges -- the clip-path ellipses are proportional to the box, so a
+     tall (long-text) box has a relatively narrower waist than a short
+     one, and text was reaching into it before. Top padding is much
+     bigger than the rest so long (multi-line, box-growing) replies
+     clear both the curved top edge and the nameplate sitting above it,
+     instead of starting right underneath/behind it. */
+  padding: 58px 76px 22px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1047,7 +1055,7 @@ body.bubble-v2 .gamebox {
   .stage-panel {
     order: 1;
     width: 100%;
-    height: 50%;
+    height: 60%;
     padding-top: 14px;
   }
 
@@ -1108,25 +1116,25 @@ body.bubble-v2 .gamebox {
   }
 
   body.bubble-v2 .gamebox {
-    left: 3%;
-    right: 6%;
+    left: 6%;
+    right: 10%;
     bottom: 2%;
   }
 
   .gamebox-body {
-    min-height: 170px;
-    padding: 18px 34px;
+    min-height: 110px;
+    padding: 38px 24px 14px;
   }
 
   .gamebox-text {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .gamebox-nameplate {
-    font-size: 11px;
-    padding: 5px 16px;
-    top: 14px;
-    left: 18px;
+    font-size: 10px;
+    padding: 4px 12px;
+    top: 10px;
+    left: 16px;
   }
 
   .avatar {
@@ -1187,7 +1195,7 @@ body.bubble-v2 .gamebox {
   .chat-panel {
     order: 2;
     width: 100%;
-    height: 50%;
+    height: 40%;
     min-width: 0;
     max-width: none;
     border-radius: 26px 26px 0 0;
