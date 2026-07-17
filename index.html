@@ -21,23 +21,62 @@
     </div>
   </div>
 
+  <!-- Totals of everything Anchovy's been given -- opened either from the
+       yellow "Show pocket" action button or the NookPhone's Pocket app. -->
+  <div id="pocket-menu" class="pocket-overlay hidden">
+    <div class="pocket-card">
+      <h2>Anchovy's Pocket</h2>
+      <ul class="pocket-list">
+        <li><span class="pocket-emoji">🪨</span><span class="pocket-label">Friendship rocks</span><span id="pocket-count-rock" class="pocket-count">0</span></li>
+        <li><span class="pocket-emoji">🦎</span><span class="pocket-label">Pets</span><span id="pocket-count-pet" class="pocket-count">0</span></li>
+        <li><span class="pocket-emoji">🎩</span><span class="pocket-label">Hats</span><span id="pocket-count-hat" class="pocket-count">0</span></li>
+      </ul>
+      <button type="button" id="pocket-close" class="pocket-close">Close</button>
+    </div>
+  </div>
+
   <div class="settings-wrap">
-    <button type="button" id="settings-btn" title="Settings">⚙️</button>
-    <div id="settings-menu" class="settings-menu hidden">
-      <label for="gemini-key-input" class="settings-label">Gemini API key</label>
-      <input id="gemini-key-input" type="password" placeholder="Paste your key here" autocomplete="off" />
-      <div id="settings-status" class="settings-status">Offline mode (no key set)</div>
-      <div class="settings-buttons">
-        <button type="button" id="settings-save">Save</button>
-        <button type="button" id="settings-clear">Clear</button>
+    <button type="button" id="settings-btn" title="Nook Phone">📱</button>
+    <div id="settings-menu" class="settings-menu nookphone hidden">
+      <div id="nookphone-home" class="nookphone-screen">
+        <div class="nookphone-grid">
+          <button type="button" class="nookphone-app" data-app="settings">
+            <span class="nookphone-app-icon nookphone-app-icon--settings"><img src="settings_icon.png" alt=""></span>
+            <span class="nookphone-app-label">Settings</span>
+          </button>
+          <button type="button" class="nookphone-app" data-app="switch">
+            <span class="nookphone-app-icon nookphone-app-icon--switch"><img src="best_friends_icon.png" alt=""></span>
+            <span class="nookphone-app-label">Switch</span>
+          </button>
+          <button type="button" class="nookphone-app" data-app="pocket">
+            <span class="nookphone-app-icon nookphone-app-icon--pocket"><img src="shopping_icon.png" alt=""></span>
+            <span class="nookphone-app-label">Pocket</span>
+          </button>
+          <a href="https://open.spotify.com/search/K.K.%20Slider" target="_blank" rel="noopener" class="nookphone-app" data-app="kk">
+            <span class="nookphone-app-icon nookphone-app-icon--kk"><img src="music_icon.png" alt=""></span>
+            <span class="nookphone-app-label">K.K. Slider</span>
+          </a>
+        </div>
       </div>
 
-      <div class="gift-divider"></div>
+      <div id="nookphone-settings" class="nookphone-screen hidden">
+        <button type="button" class="nookphone-back" data-back>‹ Back</button>
+        <label for="gemini-key-input" class="settings-label">Gemini API key</label>
+        <input id="gemini-key-input" type="password" placeholder="Paste your key here" autocomplete="off" />
+        <div id="settings-status" class="settings-status">Offline mode (no key set)</div>
+        <div class="settings-buttons">
+          <button type="button" id="settings-save">Save</button>
+          <button type="button" id="settings-clear">Clear</button>
+        </div>
+      </div>
 
-      <span class="settings-label">Playing as</span>
-      <div id="identity-status" class="settings-status">—</div>
-      <div class="settings-buttons">
-        <button type="button" id="identity-switch">Switch</button>
+      <div id="nookphone-switch" class="nookphone-screen hidden">
+        <button type="button" class="nookphone-back" data-back>‹ Back</button>
+        <span class="settings-label">Playing as</span>
+        <div id="identity-status" class="settings-status">—</div>
+        <div class="settings-buttons">
+          <button type="button" id="identity-switch">Switch</button>
+        </div>
       </div>
     </div>
   </div>
@@ -82,7 +121,6 @@
         <div class="character-zone">
           <div class="avatar-wrap">
             <img id="avatar" class="avatar" src="anchy.webp" alt="Anchovy">
-            <div id="rock-pile" class="rock-pile"></div>
 
             <div class="action-buttons">
               <button id="btn-feed" class="fab" title="Feed him a snack">
@@ -112,11 +150,61 @@
                   </form>
                 </div>
               </div>
+              <button type="button" id="pocket-btn" class="fab" title="Show pocket">
+                <span class="fab-icon">🎒</span>
+                <span class="fab-label">Show pocket</span>
+              </button>
             </div>
           </div>
 
           <span class="hover-hint">Hover over Anchy to interact</span>
         </div>
+      </div>
+
+      <!-- Version 2 of Anchovy's speech bubble -- in-game dialogue-box
+           style. Coexists with .bubble-zone above; which one is visible is
+           controlled by BUBBLE_STYLE_V2 in app.js. -->
+      <!-- Hidden defs only -- the two-ellipse clip-path is what gives the
+           gamebox its organic "two merged bubbles" silhouette (see
+           .gamebox-body in style.css). Each ellipse covers a generous,
+           near-full share of the box, and only its cx (horizontal
+           center) drifts -- top one way, bottom the other, then back --
+           for a side-to-side sway rather than a growing/shrinking
+           pulse. The drift itself is a 12-point linear-interpolated
+           sine sample (calcMode="linear") rather than a 3-point
+           ease-in-out ping-pong -- ease-in-out decelerates to a full
+           stop at every keyframe (including the midpoint), which reads
+           as the motion visibly pausing; sampling a smooth curve with
+           many small linear steps has no such stop, so the loop is
+           continuous. Amplitude is small (0.5 +/- 0.015) for a subtle
+           sway, and cx+/-rx never leaves [0,1] even at the extremes, so
+           the shape can never exceed its own container. -->
+      <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+        <defs>
+          <clipPath id="gamebox-blob-clip" clipPathUnits="objectBoundingBox">
+            <ellipse cx="0.5" cy="0.40" ry="0.38" rx="0.46">
+              <animate attributeName="cx" calcMode="linear" dur="10s" repeatCount="indefinite"
+                keyTimes="0;0.0833;0.1667;0.25;0.3333;0.4167;0.5;0.5833;0.6667;0.75;0.8333;0.9167;1"
+                values="0.5;0.5075;0.513;0.515;0.513;0.5075;0.5;0.4925;0.487;0.485;0.487;0.4925;0.5" />
+            </ellipse>
+            <ellipse cx="0.5" cy="0.60" ry="0.38" rx="0.46">
+              <animate attributeName="cx" calcMode="linear" dur="10s" repeatCount="indefinite"
+                keyTimes="0;0.0833;0.1667;0.25;0.3333;0.4167;0.5;0.5833;0.6667;0.75;0.8333;0.9167;1"
+                values="0.5;0.4925;0.487;0.485;0.487;0.4925;0.5;0.5075;0.513;0.515;0.513;0.5075;0.5" />
+            </ellipse>
+          </clipPath>
+        </defs>
+      </svg>
+
+      <div id="anchovy-gamebox" class="gamebox">
+        <span class="hover-hint hover-hint--gamebox">Hover over Anchy to interact</span>
+        <button type="button" id="gamebox-pointer-up" class="gamebox-pointer gamebox-pointer-up" title="See newer messages" aria-label="See newer messages" hidden></button>
+        <span id="gamebox-nameplate" class="gamebox-nameplate">Anchovy</span>
+        <div class="gamebox-body">
+          <p id="gamebox-text" class="gamebox-text"></p>
+          <span id="gamebox-time" class="gamebox-time"></span>
+        </div>
+        <button type="button" id="gamebox-pointer" class="gamebox-pointer gamebox-pointer-down" title="See older messages" aria-label="See older messages"></button>
       </div>
     </div>
   </div>

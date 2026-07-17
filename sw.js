@@ -2,7 +2,7 @@
 // served over http(s) — browsers refuse to register service workers for
 // file:// pages, so this is inert during local testing and "wakes up" the
 // moment this gets hosted somewhere.
-const CACHE_NAME = "anchovy-v4";
+const CACHE_NAME = "anchovy-v14";
 const ASSETS = [
   "./",
   "./index.html",
@@ -12,9 +12,12 @@ const ASSETS = [
   "./sync.js",
   "./app.js",
   "./anchy.webp",
-  "./anchy-app-bg.jpg",
+  "./anchy-web-bg.png",
   "./anchy-head.png",
-  "./anchy-rock.png",
+  "./settings_icon.png",
+  "./best_friends_icon.png",
+  "./shopping_icon.png",
+  "./music_icon.png",
   "./manifest.json",
 ];
 

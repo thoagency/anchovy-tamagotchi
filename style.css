@@ -76,6 +76,90 @@ body {
   transform: scale(0.96);
 }
 
+/* --- Pocket popup: totals of everything he's been given --- */
+
+.pocket-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(75, 58, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pocket-overlay.hidden {
+  display: none;
+}
+
+.pocket-card {
+  background: #fff8ec;
+  border-radius: 24px;
+  border: 6px solid #4b3a2a;
+  padding: 26px 28px;
+  text-align: center;
+  max-width: 90vw;
+  width: 300px;
+}
+
+.pocket-card h2 {
+  margin: 0 0 16px;
+  color: #4b3a2a;
+  font-size: 19px;
+}
+
+.pocket-list {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pocket-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fffdf7;
+  border: 2px solid #e3d5b8;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.pocket-emoji {
+  font-size: 19px;
+}
+
+.pocket-label {
+  flex: 1;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4b3a2a;
+}
+
+.pocket-count {
+  font-size: 16px;
+  font-weight: 800;
+  color: #4b3a2a;
+}
+
+.pocket-close {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 12px;
+  background: #4b3a2a;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.pocket-close:active {
+  transform: scale(0.96);
+}
+
 /* --- Settings gear, now floating over the whole app --- */
 
 .settings-wrap {
@@ -100,17 +184,20 @@ body {
   background: #ffe9c7;
 }
 
+/* Styled like the in-game NookPhone: a rounded device shell that opens to
+   a home screen of app icons, each tapping into its own little sub-screen
+   (with a back button) rather than one flat form. */
 .settings-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 220px;
-  max-width: 80vw;
-  background: #fffdf7;
-  border: 2px solid #e3d5b8;
-  border-radius: 14px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-  padding: 10px;
+  width: 250px;
+  max-width: 82vw;
+  min-height: 300px;
+  background: #fdf8ec;
+  border-radius: 32px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -118,6 +205,77 @@ body {
 
 .settings-menu.hidden {
   display: none;
+}
+
+.nookphone-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nookphone-screen.hidden {
+  display: none;
+}
+
+.nookphone-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px 12px;
+  padding-top: 6px;
+}
+
+.nookphone-app {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.nookphone-app-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  transition: transform 0.15s ease;
+}
+
+.nookphone-app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.nookphone-app:hover .nookphone-app-icon,
+.nookphone-app:focus-visible .nookphone-app-icon {
+  transform: translateY(-2px);
+}
+
+.nookphone-app:active .nookphone-app-icon {
+  transform: translateY(0) scale(0.94);
+}
+
+.nookphone-app-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #4b3a2a;
+}
+
+.nookphone-back {
+  all: unset;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b5638;
+  margin-bottom: 4px;
+}
+
+.nookphone-back:hover {
+  color: #4b3a2a;
 }
 
 .settings-label {
@@ -451,6 +609,177 @@ body {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
+/* v2 only: the under-the-feet hint doesn't make sense once he's not
+   reliably standing over his own feet-height anymore, so it moves to
+   sit just above the gamebox's top-right corner instead. */
+body.bubble-v2 .character-zone > .hover-hint {
+  display: none;
+}
+
+/* Pinned to the actual screen corner (not the bubble) on desktop --
+   removed entirely on mobile via the shared .hover-hint rule in the
+   mobile media query below. */
+.hover-hint--gamebox {
+  position: fixed;
+  right: 16px;
+  bottom: 12px;
+  white-space: nowrap;
+}
+
+/* --- Version 2 Anchovy dialogue box: in-game style, one message at a
+   time, bottom-left of the stage panel (closer to the chat panel side
+   than to the character). Hidden unless <body> carries .bubble-v2 (set
+   from BUBBLE_STYLE_V2 in app.js) -- .bubble-zone above is untouched and
+   still fully functional, this is purely an alternate skin. --- */
+.gamebox {
+  display: none;
+}
+
+body.bubble-v2 .bubble-zone {
+  display: none;
+}
+
+body.bubble-v2 .gamebox {
+  display: block;
+  position: absolute;
+  left: 4%;
+  right: 10%;
+  bottom: 4%;
+  z-index: 6;
+}
+
+.gamebox-body {
+  position: relative;
+  /* Taller floor so longer replies have real room before the box needs
+     to grow at all -- width is untouched, only the vertical baseline
+     changed. The clip-path ellipses are proportional (objectBoundingBox
+     units), so they scale with whatever height this ends up being. */
+  min-height: 260px;
+  background: #fdf8ec;
+  padding: 28px 62px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  clip-path: url(#gamebox-blob-clip);
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.4));
+}
+
+/* Retriggered (class removed + re-added) every time a new message comes
+   in, so the box pops in fresh each time instead of just snapping to
+   new text. */
+.gamebox.pop .gamebox-body {
+  animation: gamebox-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes gamebox-pop {
+  0% { opacity: 0; transform: scale(0.92) translateY(14px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.gamebox-nameplate {
+  position: absolute;
+  /* An ellipse-based blob tapers away fast near its own edges, so a
+     corner position that overhangs above y=0 (like before) sits past
+     where the shape actually reaches -- pulled fully onto the visible
+     surface instead, even though that's a bit lower/less corner-hugging
+     than the reference. */
+  top: 22px;
+  left: 30px;
+  z-index: 2;
+  background: #d9722f;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  padding: 7px 22px;
+  border-radius: 999px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.gamebox-text {
+  margin: 0;
+  font-weight: 800;
+  font-size: 22px;
+  line-height: 1.4;
+  text-align: center;
+  color: #6b5638;
+}
+
+.gamebox-time {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #a3906c;
+  text-align: right;
+}
+
+.gamebox-pointer {
+  all: unset;
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
+}
+
+.gamebox-pointer[hidden] {
+  display: none;
+}
+
+/* Points down, sits below the box -- steps backward into older messages. */
+.gamebox-pointer-down {
+  bottom: -14px;
+  transform: translateX(-50%);
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 18px solid #fdf8ec;
+  animation: gamebox-pointer-bob-down 1.6s ease-in-out infinite;
+}
+
+/* Points up, sits above the box -- steps forward into newer messages.
+   Hidden via the [hidden] attribute (toggled in app.js) whenever we're
+   already showing the latest message. */
+.gamebox-pointer-up {
+  top: -14px;
+  transform: translateX(-50%);
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 18px solid #fdf8ec;
+  animation: gamebox-pointer-bob-up 1.6s ease-in-out infinite;
+}
+
+@keyframes gamebox-pointer-bob-down {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(4px); }
+}
+
+@keyframes gamebox-pointer-bob-up {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+
+.gamebox-pointer:hover {
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25)) brightness(0.9);
+}
+
+.gamebox-pointer:active {
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25)) brightness(0.85);
+}
+
+/* v2-only, desktop-only: with .bubble-zone hidden, .character-zone is the
+   sole flex item in .middle-row, so widen it to the full row and re-center
+   its content so Anchovy lines up over the gamebox's own horizontal
+   center rather than the old right-half column -- plus lift him ~150px
+   so more of him clears the top of the box. */
+@media (min-width: 701px) {
+  body.bubble-v2 .character-zone {
+    width: 100%;
+    padding-bottom: 174px;
+  }
+}
+
 .avatar-wrap {
   position: relative;
   display: flex;
@@ -478,39 +807,7 @@ body {
   100% { transform: translateY(0); }
 }
 
-/* Friendship rocks pile up at his feet, one per rock gifted. Positions are
-   randomized (with a minimum spacing) so they look scattered rather than
-   stacked in a neat row or exactly on top of each other. */
-.rock-pile {
-  position: absolute;
-  bottom: 4%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 160px;
-  height: 40px;
-  pointer-events: none;
-}
-
-.rock-img {
-  position: absolute;
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
-}
-
-.rock-img.pop-in {
-  animation: rock-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes rock-pop {
-  0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.3); }
-  60% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1.15); }
-  100% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1); }
-}
-
-/* Hovering the artwork reveals the three action buttons, cascading in one
+/* Hovering the artwork reveals the action buttons, cascading in one
    after another along a rounded path that hugs the outline of his head --
    top of the head, round to the right side, down to the cheek/shoulder --
    rather than a straight stack. Each gets its own point on that arc. */
@@ -540,6 +837,12 @@ body {
   position: absolute;
   top: 32%;
   right: 2%;
+}
+
+#pocket-btn {
+  position: absolute;
+  top: 50%;
+  right: -10%;
 }
 
 .fab {
@@ -574,6 +877,8 @@ body {
 .avatar-wrap:focus-within #btn-nap { transition-delay: 0.12s; }
 .avatar-wrap:hover #gift-btn,
 .avatar-wrap:focus-within #gift-btn { transition-delay: 0.24s; }
+.avatar-wrap:hover #pocket-btn,
+.avatar-wrap:focus-within #pocket-btn { transition-delay: 0.36s; }
 
 .fab:hover {
   box-shadow: 0 14px 26px rgba(0, 0, 0, 0.35);
@@ -692,12 +997,18 @@ body {
 /* Desktop only: let the gradient bar break out of the stage panel's ~67%
    column and span the full viewport edge-to-edge, over the background
    image and behind the (higher z-index) chat panel, rather than stopping
-   at the stage panel's own left edge. */
+   at the stage panel's own left edge. The stat content itself, though,
+   stays centered specifically over the stage-panel area (roughly where
+   Anchovy now stands, since .character-zone is full-width in v2) rather
+   than the whole viewport -- padding-left approximates the chat panel's
+   width + gap so the centered content lands over the right-hand column. */
 @media (min-width: 701px) {
   .stats-row {
     position: fixed;
     left: 0;
     right: 0;
+    justify-content: center;
+    padding-left: calc(33% + 56px);
   }
 }
 
@@ -720,6 +1031,17 @@ body {
   .settings-wrap {
     top: 12px;
     right: 12px;
+  }
+
+  .settings-menu {
+    width: 220px;
+    min-height: 260px;
+    padding: 16px 14px;
+  }
+
+  .nookphone-app-icon {
+    width: 44px;
+    height: 44px;
   }
 
   .stage-panel {
@@ -774,6 +1096,39 @@ body {
     padding-bottom: 10px;
   }
 
+  /* v2 on mobile: same reasoning as the desktop version -- with
+     .bubble-zone hidden, .character-zone can take the full width and
+     center Anchovy within it instead of staying pinned to its old 40%
+     right-hand column. Extra bottom padding on top of the mobile
+     baseline (10px) lifts him ~55px higher, same idea as the desktop
+     174px lift. */
+  body.bubble-v2 .character-zone {
+    width: 100%;
+    padding-bottom: 65px;
+  }
+
+  body.bubble-v2 .gamebox {
+    left: 3%;
+    right: 6%;
+    bottom: 2%;
+  }
+
+  .gamebox-body {
+    min-height: 170px;
+    padding: 18px 34px;
+  }
+
+  .gamebox-text {
+    font-size: 15px;
+  }
+
+  .gamebox-nameplate {
+    font-size: 11px;
+    padding: 5px 16px;
+    top: 14px;
+    left: 18px;
+  }
+
   .avatar {
     max-height: 30vh;
   }
@@ -791,7 +1146,8 @@ body {
 
   #btn-feed,
   #btn-nap,
-  .gift-wrap {
+  .gift-wrap,
+  #pocket-btn {
     position: relative;
     top: auto;
     right: auto;

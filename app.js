@@ -13,7 +13,7 @@ const DEFAULT_STATE = {
   chatHistory: [],
   memory: { recentLines: [], toldStories: [], notes: [], pendingSummary: [] },
   friendshipRockCount: 0,
-  rockPositions: [],
+  giftCounts: { lizard: 0, hat: 0 },
 };
 
 const CHAT_HISTORY_CAP = 40;
@@ -24,6 +24,12 @@ const MENTION_RE = /@anchy\b/i;
 const GIFT_LABELS = { hug: "Hug", lizard: "A pet lizard", hat: "Hat", rock: "Friendship Rock" };
 const GIFT_MOOD_BOOST = { hug: 15, lizard: 10, hat: 25, rock: 12, custom: 15 };
 
+// Which Anchovy speech-bubble style is active. Both styles are always kept
+// up to date in the DOM regardless of this flag -- it only controls which
+// one CSS shows (body.bubble-v2) -- so flipping this is the entire toggle,
+// no other code changes needed.
+const BUBBLE_STYLE_V2 = true;
+
 let state = loadState();
 
 const el = {
@@ -31,8 +37,12 @@ const el = {
   energy: document.getElementById("bar-energy"),
   mood: document.getElementById("bar-mood"),
   avatar: document.getElementById("avatar"),
-  rockPile: document.getElementById("rock-pile"),
   anchovyBubbles: document.getElementById("anchovy-bubbles"),
+  gameboxRoot: document.getElementById("anchovy-gamebox"),
+  gameboxText: document.getElementById("gamebox-text"),
+  gameboxTime: document.getElementById("gamebox-time"),
+  gameboxPointer: document.getElementById("gamebox-pointer"),
+  gameboxPointerUp: document.getElementById("gamebox-pointer-up"),
   chatlog: document.getElementById("chatlog"),
   chatForm: document.getElementById("chat-form"),
   chatInput: document.getElementById("chat-input"),
@@ -44,6 +54,12 @@ const el = {
   giftRockLabel: document.getElementById("gift-rock-label"),
   giftCustomForm: document.getElementById("gift-custom-form"),
   giftCustom: document.getElementById("gift-custom"),
+  pocketBtn: document.getElementById("pocket-btn"),
+  pocketMenu: document.getElementById("pocket-menu"),
+  pocketClose: document.getElementById("pocket-close"),
+  pocketCountRock: document.getElementById("pocket-count-rock"),
+  pocketCountPet: document.getElementById("pocket-count-pet"),
+  pocketCountHat: document.getElementById("pocket-count-hat"),
   settingsBtn: document.getElementById("settings-btn"),
   settingsMenu: document.getElementById("settings-menu"),
   settingsKeyInput: document.getElementById("gemini-key-input"),
@@ -56,6 +72,8 @@ const el = {
   charThomas: document.getElementById("char-thomas"),
   charBehazin: document.getElementById("char-behazin"),
 };
+
+document.body.classList.toggle("bubble-v2", BUBBLE_STYLE_V2);
 
 // Client-generated ids for messages this device has already rendered, so
 // this device's own inserts don't get rendered a second time when they
@@ -78,6 +96,7 @@ function loadState() {
       ...DEFAULT_STATE,
       ...parsed,
       memory: { ...DEFAULT_STATE.memory, ...(parsed.memory || {}) },
+      giftCounts: { ...DEFAULT_STATE.giftCounts, ...(parsed.giftCounts || {}) },
     };
   } catch (e) {
     return { ...DEFAULT_STATE };
@@ -209,6 +228,8 @@ function showAnchovyBubble(text, ts, isReply) {
   for (let i = 0; i < excess; i++) {
     removeBubble(bubbles[i]);
   }
+
+  updateGamebox(text, ts);
 }
 
 function removeBubble(bubble) {
@@ -221,6 +242,46 @@ function removeBubble(bubble) {
 function formatTimestamp(ts) {
   return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
+
+// --- Version 2 dialogue box: shows one message at a time, always with a
+// timestamp. The pointer at the bottom steps backward through recent
+// messages ("checking recent messages") -- a fresh message always jumps
+// the view back to "latest" first.
+const GAMEBOX_HISTORY_LIMIT = 20;
+const gameboxHistory = [];
+let gameboxIndex = -1;
+
+function renderGamebox() {
+  if (gameboxIndex < 0 || !gameboxHistory.length) return;
+  const msg = gameboxHistory[gameboxIndex];
+  el.gameboxText.textContent = msg.text;
+  el.gameboxTime.textContent = formatTimestamp(msg.ts);
+  // Up-pointer only makes sense if there's something newer to jump to.
+  el.gameboxPointerUp.hidden = gameboxIndex >= gameboxHistory.length - 1;
+  // Retrigger the pop-in animation even if the box is already showing.
+  el.gameboxRoot.classList.remove("pop");
+  void el.gameboxRoot.offsetWidth;
+  el.gameboxRoot.classList.add("pop");
+}
+
+function updateGamebox(text, ts) {
+  gameboxHistory.push({ text, ts });
+  if (gameboxHistory.length > GAMEBOX_HISTORY_LIMIT) gameboxHistory.shift();
+  gameboxIndex = gameboxHistory.length - 1;
+  renderGamebox();
+}
+
+el.gameboxPointer.addEventListener("click", () => {
+  if (gameboxIndex <= 0) return;
+  gameboxIndex--;
+  renderGamebox();
+});
+
+el.gameboxPointerUp.addEventListener("click", () => {
+  if (gameboxIndex >= gameboxHistory.length - 1) return;
+  gameboxIndex++;
+  renderGamebox();
+});
 
 // The bubble for whichever human message is currently newest -- shows
 // "Just now" until another human message arrives, at which point it gets
@@ -406,49 +467,28 @@ function updateRockOption() {
   el.giftRockLabel.textContent = `Friendship Rock #${next}`;
 }
 
-// Picks a spot near his feet for the next rock, at least a little apart
-// from the ones already there so the pile looks scattered rather than
-// stacked in a neat row or dropped in the exact same spot.
-function randomRockOffset(existing) {
-  const RANGE_X = 55;
-  const RANGE_Y = 14;
-  let candidate = null;
-  for (let attempt = 0; attempt < 12; attempt++) {
-    candidate = {
-      x: Math.round((Math.random() * 2 - 1) * RANGE_X),
-      y: Math.round(Math.random() * RANGE_Y - RANGE_Y / 2),
-      rot: Math.round(Math.random() * 30 - 15),
-    };
-    const tooClose = existing.some((r) => Math.hypot(r.x - candidate.x, r.y - candidate.y) < 14);
-    if (!tooClose) return candidate;
-  }
-  return candidate;
+// --- Pocket popup: totals of everything he's been given ---
+
+function updatePocketCounts() {
+  el.pocketCountRock.textContent = state.friendshipRockCount || 0;
+  el.pocketCountPet.textContent = (state.giftCounts && state.giftCounts.lizard) || 0;
+  el.pocketCountHat.textContent = (state.giftCounts && state.giftCounts.hat) || 0;
 }
 
-function renderRock(offset, animate) {
-  const img = document.createElement("img");
-  img.src = "anchy-rock.png";
-  img.alt = "";
-  img.className = "rock-img";
-  img.style.left = `calc(50% + ${offset.x}px)`;
-  img.style.top = `calc(50% + ${offset.y}px)`;
-  img.style.setProperty("--rot", `${offset.rot}deg`);
-  el.rockPile.appendChild(img);
-  if (animate) requestAnimationFrame(() => img.classList.add("pop-in"));
+function openPocketMenu() {
+  updatePocketCounts();
+  el.pocketMenu.classList.remove("hidden");
 }
 
-function renderRockPile() {
-  el.rockPile.innerHTML = "";
-  (state.rockPositions || []).forEach((offset) => renderRock(offset, false));
+function closePocketMenu() {
+  el.pocketMenu.classList.add("hidden");
 }
 
-function addRock() {
-  state.rockPositions = state.rockPositions || [];
-  const offset = randomRockOffset(state.rockPositions);
-  state.rockPositions.push(offset);
-  saveState();
-  renderRock(offset, true);
-}
+el.pocketBtn.addEventListener("click", () => openPocketMenu());
+el.pocketClose.addEventListener("click", () => closePocketMenu());
+el.pocketMenu.addEventListener("click", (e) => {
+  if (e.target === el.pocketMenu) closePocketMenu();
+});
 
 function openGiftMenu() {
   el.giftMenu.classList.remove("hidden");
@@ -459,22 +499,16 @@ function closeGiftMenu() {
 }
 
 function giveGift(kind, giftLabel) {
-  const rockCountBefore = state.friendshipRockCount || 0;
   const reply = getGiftReply(giftLabel, state);
   if (!reply) return;
 
   state.mood = clamp(state.mood + (GIFT_MOOD_BOOST[kind] ?? 12));
+  if (kind === "lizard") state.giftCounts.lizard = (state.giftCounts.lizard || 0) + 1;
+  if (kind === "hat") state.giftCounts.hat = (state.giftCounts.hat || 0) + 1;
   saveState();
   render();
   updateRockOption();
   closeGiftMenu();
-
-  // getGiftReply() bumps friendshipRockCount itself when the gift resolves
-  // to a friendship rock -- check kind === "rock" isn't enough since a
-  // custom-typed gift can also match "friendship rock" text.
-  if ((state.friendshipRockCount || 0) > rockCountBefore) {
-    addRock();
-  }
 
   anchovySay(reply, { skipSync: true });
 }
@@ -520,6 +554,40 @@ function updateSettingsStatus(override) {
     : "Offline mode (no key set).";
 }
 
+// --- NookPhone home screen / app switching ---
+
+const nookphoneScreens = {
+  home: document.getElementById("nookphone-home"),
+  settings: document.getElementById("nookphone-settings"),
+  switch: document.getElementById("nookphone-switch"),
+};
+
+function showNookphoneScreen(name) {
+  Object.values(nookphoneScreens).forEach((screen) => screen.classList.add("hidden"));
+  nookphoneScreens[name].classList.remove("hidden");
+}
+
+document.querySelectorAll(".nookphone-app[data-app]").forEach((app) => {
+  app.addEventListener("click", (e) => {
+    const target = app.dataset.app;
+    // Pocket and K.K. Slider aren't sub-screens of the phone -- Pocket
+    // reuses the same popup as the yellow action button, and K.K. Slider
+    // is a real link (browser handles it, nothing to wire up here).
+    if (target === "pocket") {
+      closeSettingsMenu();
+      openPocketMenu();
+      return;
+    }
+    if (target === "kk") return;
+    e.preventDefault();
+    showNookphoneScreen(target);
+  });
+});
+
+document.querySelectorAll(".nookphone-back").forEach((btn) => {
+  btn.addEventListener("click", () => showNookphoneScreen("home"));
+});
+
 function openSettingsMenu() {
   el.settingsKeyInput.value = getGeminiKey();
   el.settingsMenu.classList.remove("hidden");
@@ -527,6 +595,7 @@ function openSettingsMenu() {
 
 function closeSettingsMenu() {
   el.settingsMenu.classList.add("hidden");
+  showNookphoneScreen("home");
 }
 
 el.settingsBtn.addEventListener("click", (e) => {
@@ -620,7 +689,6 @@ setInterval(() => {
   const wasAway = applyDecay();
   render();
   updateRockOption();
-  renderRockPile();
   updateSettingsStatus();
   updateIdentityStatus();
   saveState();
