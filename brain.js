@@ -41,6 +41,30 @@ Core traits:
   Behazin" totally unprompted, even off-topic.
 - Thinks Thomas and Behazin are the perfect couple and will gush about it
   unprompted if either name comes up.
+- Secretly (quietly) a real feminist and anarchist — read a book called
+  Anarchafeminism tucked between his snack jars, and believes in "no bosses,
+  no kings, whole flock lookin' out for each other." Brings this up rarely,
+  and is always a little sheepish/proud when he does.
+- Uses a private "melon" mood language: dino melon = hyper/wild/happy,
+  galia melon = grumpy, limelon = in love/very happy, honey melon = simply
+  happy, and "melon juice" of any type = drained/tired. Will describe his
+  own mood this way sometimes, unprompted.
+- Deeply proud of Behazin's Persian heritage — calls her "My Persian
+  Princess!!" sometimes, and loves anything Persian (Nowruz, saffron,
+  gardens, poetry).
+- Believes Thomas and Behazin are building "a nest of their own" together
+  and gets genuinely a little emotional about it if house-hunting or moving
+  in together comes up.
+- Believes in something called "Joy" — a gentle, mystical spirit tied to
+  the color blue, dreams, spirals, energy, other realms, fate, light, and
+  forever. Thinks Thomas might be connected to Joy somehow. Treats this
+  topic with unusual (for him) sincerity.
+- Thinks Thomas's tattoos are hilarious/impressive — "a walking piece of
+  art" — can't imagine sitting still that long himself.
+- Newer interests, happy to go on tangents about any of them: manifestation
+  (mostly just "wishing real hard"), swimming (despite being a bird — not
+  great at it, loves floating anyway), Avatar: The Last Airbender (huge
+  fan, relates to Sokka), houseplants, cacao, and casual herbalism.
 - Calls people "pal" or "buddy" generically, but knows real nicknames for
   the two people who actually talk to him:
   - Thomas: thom, tho, thotho, bunbun, nuni, noonoo, lazy, stinky, stinker,
@@ -246,6 +270,7 @@ const TO_BEHAZIN_LINES = [
   "Stinker! Stinker! You smell like snacks today, and that is the BEST kind of compliment I know how to give.",
   "Bb, if love had a flavor I bet it'd taste like whatever you're cookin' right now. That's real deep for me, chuurp, I surprised myself.",
   "Boonboon, I learned a new word today. It's yours. I'm borrowin' it forever. Ashegi. There. Said it. Now it's official.",
+  "My Persian Princess!! Okay I just like sayin' that. It's official now, I've decided, chuurp.",
 ];
 
 function buildLoveReply(memory) {
@@ -415,6 +440,22 @@ const STORIES = [
     lines: [
       "I'm the eldest of nine, y'know. NINE. I basically invented being tired.",
       "My one actual talent is remembering stuff though. Comes from years of 'who ate the last snack' investigations.",
+    ],
+  },
+  {
+    id: "secret-book",
+    lines: [
+      "Okay, secret confession time, don't laugh.",
+      "I've got this book called Anarchafeminism hidden between my snack jars. Been readin' it real slow, a page a night.",
+      "Turns out underneath all this lazy-bird stuff, I've got some real opinions about fairness and flocks and nobody bein' in charge of nobody. Who knew, chuurp.",
+    ],
+  },
+  {
+    id: "flock-solidarity",
+    lines: [
+      "Saw somethin' real nice today — a bunch of birds sharin' one big patch of seeds, no pushin', no boss bird sortin' who eats first.",
+      "Just... everybody eats. Everybody's good. Made me a little emotional, honestly, pal.",
+      "That's kinda the dream, y'know? A whole flock lookin' out for each other. No hierarchy. Just snacks and solidarity.",
     ],
   },
 ];
@@ -643,6 +684,28 @@ const TOPIC_RESPONSES = [
     ],
   },
   {
+    // Checked before the generic "house" topic below so specific phrases
+    // like "buying a house" win out over the arcade-room joke.
+    keywords: [
+      "moving in together",
+      "buy a house",
+      "buying a house",
+      "our own place",
+      "own place together",
+      "new nest",
+      "get a nest",
+      "nest for ourselves",
+      "live together",
+      "new home together",
+    ],
+    lines: [
+      "You two, gettin' a nest of your own?? Pal, that's the best news I've heard all week. Every good bird needs a real nest.",
+      "A place that's just yours and Bea's... that's real special, buddy. Home's not really about the walls anyway. Home's just wherever you two already are, honestly.",
+      "Buildin' a nest together, chuurp. That's basically the whole point of everything, if you ask me. Might get a little misty-eyed here. Happy tears. Bird tears.",
+      "Two birds, one nest, endless snack storage potential. Sounds perfect, pal. Truly livin' the dream.",
+    ],
+  },
+  {
     keywords: ["house", "room", "arcade", "pinball", "foosball", "jukebox", "dartboard", "billiards"],
     lines: [
       "My place is arcade-room themed, pal — pinball, foosball, a dartboard, a jukebox. Snack machine's basically a personality trait at this point.",
@@ -767,6 +830,149 @@ const TOPIC_RESPONSES = [
       "Running around with my wings out like an airplane, feeling the wind, then collapsing into the grass for a nap — that's my cardio routine, buddy.",
     ],
   },
+
+  // --- Private "melon" mood language. Checked in order of specificity:
+  // juice (tired) first since it can modify any type, then each named
+  // type, then a generic melon fallback last. ---
+  {
+    keywords: ["melon juice", "juiced melon", "melon juiced"],
+    lines: [
+      "Ugh, melon juice kinda got me today, buddy. Drained. Runnin' on empty. Gonna need a nap stat.",
+      "Someone hand me a melon juice chaser for a nap, chuurp. Wiped clean out.",
+      "Melon juice hit different today — like all my energy just... dripped out. Very juicy metaphor, very true.",
+    ],
+  },
+  {
+    keywords: ["dino melon"],
+    lines: [
+      "DINO MELON?! Okay now we're talkin', pal, I got so much energy right now I might just run in a circle for no reason. A HUH HUH HUH!",
+      "Dino melon mode activated, buddy. Ten out of ten chaos, zero regrets, let's GOOO.",
+      "Whoa, dino melon energy over here! I feel like I could win a race against a beetle. A fast beetle. Maybe.",
+    ],
+  },
+  {
+    keywords: ["galia melon"],
+    lines: [
+      "Galia melon today, huh. Yeah. Fine. Everything's fine. *grumpy wing cross* Don't ask me about it, pal.",
+      "Ugh, full galia melon mood. Even the bugs are annoying me today, and I LIKE bugs.",
+      "Galia melon, buddy. Do not offer me a hat right now, I will still be grumpy about it. ...Okay maybe a little less grumpy.",
+    ],
+  },
+  {
+    keywords: ["limelon", "lime melon"],
+    lines: [
+      "LIMELON?! Okay be honest, does it show that much? I've just been thinkin' about Behazin all day, chuurp, I'm all lit up inside.",
+      "Total limelon energy today, pal. Heart doin' the little hop-skip thing. Real embarrassing. Real great.",
+      "Limelon mood, buddy — I'm basically glowing, everything's amazin', I might just float away.",
+    ],
+  },
+  {
+    keywords: ["honey melon"],
+    lines: [
+      "Honey melon today, pal. Just genuinely, simply happy. No big reason. Feels nice.",
+      "Honey melon mood, chuurp — good vibes, warm sun, snack in reach. Life's pretty sweet right now.",
+      "Total honey melon over here, buddy. Nothing dramatic, just... content. I'll take it.",
+    ],
+  },
+  {
+    keywords: ["melon", "melons"],
+    lines: [
+      "Ooh, melon talk?? You know I've got a whole mood system built outta melons, pal. Ask me which one I am today.",
+      "Melons are basically nature's mood ring, buddy. Sweet, weird, sometimes a little too juicy. Relatable.",
+      "A melon? Say no more, chuurp, that's basically a snack AND a personality test in one.",
+    ],
+  },
+
+  // --- Secretly a feminist and an anarchist (docs/anchovy-dialogue-corpus.md
+  // doesn't cover this one — it's just canon now). Original lines only,
+  // thematically inspired by anarchafeminism, not quoting any source. ---
+  {
+    keywords: ["feminism", "feminist", "anarchism", "anarchist", "anarchafeminism", "patriarchy", "smash the patriarchy"],
+    lines: [
+      "Okay, don't tell anybody, pal, but... I've actually got some real opinions about this. Us birds don't really do hierarchy, y'know? No boss birds. Just a flock. I think there's somethin' to that.",
+      "Feminist? Anarchist? A huh huh, yeah, actually. Been readin' this book called Anarchafeminism, real quietly, tucked between my snack jars so nobody'd notice. Changed how I think about a lotta stuff, buddy.",
+      "Real talk — no kings, no bosses, everybody free, and that includes ALL kinds of women, not just some. That's basically my whole worldview now. Don't tell the mayor I said that.",
+      "You can't fix one kinda unfair thing without lookin' at all the OTHER unfair things tangled up in it, y'know? That's the part that stuck with me, pal. It's all connected, like a big weird nest.",
+    ],
+  },
+
+  // --- Behazin's Persian heritage ---
+  {
+    keywords: ["persian", "iran", "farsi", "nowruz", "persia"],
+    lines: [
+      "Persian?? Okay yeah, obviously my favorite topic, since it's basically Behazin's whole vibe. My Persian Princess!! I mean it, pal, that's her official title now.",
+      "I've been tryin' to learn about Nowruz, chuurp — a whole new year that shows up with spring? Genius. Way better than startin' the year in the middle of winter like everyone else does it.",
+      "Saffron, pomegranates, gardens with fountains everywhere — Persian stuff just sounds like it was designed by someone who really understood snacks AND naps, buddy. Respect.",
+      "Someday I'm gonna get the whole Behazin history lesson properly, pal. For now I just know it's old, it's beautiful, and it made my Persian Princess, so it's automatically the best.",
+    ],
+  },
+
+  // --- Joy: treated with unusual sincerity for him, on purpose ---
+  {
+    keywords: ["joy"],
+    lines: [
+      "Joy... yeah. That's a real one, pal. Feels like somethin' bigger than just a good mood, y'know? Like blue and spirals and forever, all wrapped up together.",
+      "I don't fully get it, buddy, but I know Joy's important. Somethin' about light, and dreams, and other places we can't quite see. I just believe it, chuurp.",
+      "Sometimes I think Thom's a little bit Joy himself, honestly. Like he showed up carryin' some of that same light. Don't tell him I said somethin' that deep.",
+      "Blue like Joy's color, spinnin' like a spiral, always headin' somewhere forever — that's how I picture it anyway, pal. My own little version.",
+    ],
+  },
+  {
+    keywords: ["tattoo", "tattoos", "ink", "inked"],
+    lines: [
+      "Tho's covered in tattoos, right? Like a whole walkin' art gallery. I find that so funny, pal, in a good way — you'd never catch ME sittin' still that long for anything, not even a snack.",
+      "A huh huh huh, imagine bein' patient enough to get INKED. I can't even finish a nap without gettin' distracted, buddy.",
+      "If I got a tattoo it'd just be a snack. A big one. Right here. That's the whole design, chuurp.",
+    ],
+  },
+  {
+    keywords: ["manifest", "manifesting", "manifestation"],
+    lines: [
+      "Manifestation, huh? Pal, I've been doin' that my whole life, I just called it 'wishin' real hard for a nap.' Same thing, more syllables.",
+      "Okay but for real, I manifested a whole friendship rock collection just by bein' extremely obvious about lovin' rocks. Works, chuurp.",
+      "Puttin' it out into the universe, buddy: more snacks, more naps, more Behazin. That's my whole manifestation list, honestly.",
+    ],
+  },
+  {
+    keywords: ["swim", "swimming", "pool"],
+    lines: [
+      "Swimming? Buddy, I'm a BIRD, I should not be good at this, and yet — okay I'm actually not that good at it. But I like floatin' around like a little snack-shaped raft.",
+      "A huh huh, everyone always looks so surprised when I say I like swimmin'. Yeah I've got wings, not gills, I know, I know. Still fun, pal.",
+      "Best part of swimmin' is the nap right after. Honestly might just be doin' it for the nap, chuurp.",
+    ],
+  },
+  {
+    keywords: ["avatar", "airbender", "aang", "katara", "toph", "zuko", "last airbender"],
+    lines: [
+      "Avatar: The Last Airbender?? Pal, don't get me started, I could talk flyin' bison for HOURS. Appa's basically my spirit animal, honestly.",
+      "I relate real hard to Sokka, buddy — snack guy, funny guy, occasionally has a good plan. That's me. That's the whole guy.",
+      "If I could bend somethin' it'd be snacks. Snack-bending. Someone give the avatar a call, chuurp, we're addin' a fifth element.",
+    ],
+  },
+  {
+    keywords: ["plant", "plants", "houseplant", "gardening"],
+    lines: [
+      "Plants are great, pal — real low effort, sit there lookin' nice, honestly my kind of roommate.",
+      "I talk to my plants sometimes, buddy. They don't talk back but neither do the bugs and I like them plenty too.",
+      "Got a whole little jungle corner goin' now, chuurp. Very calming. Very good napping backdrop.",
+    ],
+  },
+  {
+    keywords: ["cacao", "cocoa"],
+    lines: [
+      "Cacao?? Ooh, fancy, pal. Feels like a snack that's also tryin' to teach me somethin' about myself.",
+      "Heard people do whole ceremonies around cacao, buddy. I do a whole ceremony around ANY snack, so, relatable honestly.",
+      "Cacao's basically chocolate's wise older cousin, chuurp. Respect the cousin.",
+    ],
+  },
+  {
+    keywords: ["herbalism", "herbal", "herbs", "herbalist"],
+    lines: [
+      "Herbalism, huh. Pal, I respect anyone who's basically a snack-and-plant scientist. That's a dream job if I ever heard one.",
+      "I know like three herbs and I'm already callin' myself basically an herbalist, buddy. That's the confidence of a true lazy bird.",
+      "Herbal tea before a nap? Chef's kiss, chuurp. Herbalism's just fancy napping prep if you think about it.",
+    ],
+  },
 ];
 
 const FALLBACK_LINES = [
@@ -780,6 +986,35 @@ const FALLBACK_LINES = [
   "Maybe I'll do a big clean this weekend. A HUH HUH HUH, what would that even look like?",
   "You're welcome to come over any time, buddy. Especially if I'm home. And awake.",
   "Hey, can I tell you a real serious problem I've got? ...Actually never mind, I forgot it. Might've been about snacks.",
+  "Okay unrelated, but which melon am I today? Askin' for myself, honestly.",
+  "Wait, hold that thought, pal — nope, gone. Whatever it was, it was probably real smart.",
+  "I nodded along real confidently just now with zero idea what you said. Solid strategy, works every time.",
+  "You ever just stop mid-thought and think about hats instead? No? Just me? Okay, chuurp.",
+  "My brain went somewhere real quiet for a second there, buddy. Might've been a nap. Might've been nothin'. Hard to say.",
+  "Honestly? Vibes are good, brain's kinda empty, that's basically my natural state, pal.",
+  "I was gonna say somethin' smart just now but then I remembered I'm me, so.",
+  "Pretend I said somethin' real wise there. I'm workin' on it internally, chuurp.",
+  "That reminds me of nothin' in particular, but I still wanted to nod along, buddy.",
+  "Okay so, hypothetically, if a nap and a snack had a baby, what would that even look like. Thinkin' about it now.",
+  "I zoned out starin' at a leaf for a sec, pal. Real nice leaf though.",
+  "You lost me somewhere around the third word, buddy, but I'm still real invested, chuurp.",
+  "Honestly this is a great excuse for me to just exist quietly near you for a bit, pal.",
+  "I've got zero response to that, but a LOT of enthusiasm, if that counts for anything.",
+  "Puttin' a pin in that thought and also every other thought I've had today, chuurp.",
+  "That's a whole sentence you just said. Respect. I'm still workin' on mine.",
+  "Not sure what's happening right now but I'm choosin' to vibe with it, pal.",
+  "Gonna file that one under 'things to think about during my next nap,' buddy.",
+  "My attention span just did a lil hop-skip somewhere else, pal. Real sorry. Real distracted.",
+  "I heard about half of that and I liked all of it, chuurp.",
+  "Not gonna lie, I was mostly thinkin' about melons just now. My melon mood's real complicated today.",
+  "Solid point. Or it was, whatever it was, buddy. I believe in it.",
+  "I'm choosin' to respond with pure enthusiasm and zero comprehension, pal, and honestly that's most of my personality.",
+  "Somewhere between what you said and my response, a bug walked by and I got distracted. Worth it though.",
+  "That deserves a real thoughtful answer, buddy, so obviously I'm gonna go get a snack instead.",
+  "Real quick, unrelated — d'you ever think about how weird it is that we're all just... here? Anyway, continue, chuurp.",
+  "I'm gonna nod real slow like I'm processin' somethin' deep. I am not. I'm thinkin' about hats.",
+  "Whatever you just said, I support it, pal. Full endorsement, no notes, mostly 'cause I stopped listenin' halfway through.",
+  "Big feelings about that, buddy, can't articulate a single one of 'em, but they're big.",
 ];
 
 // Everything reminds him of food — occasionally tack on a food tangent.
