@@ -378,9 +378,13 @@ function sayReply(reply, opts) {
   }
 }
 
+// Always says something on load -- a stat-aware idle line if you were
+// genuinely away for a while, otherwise a nickname greeting, so the
+// bubble/gamebox is never just empty when you open the app. A short
+// delay so it doesn't fire before the screen has visually settled.
 function handleWelcomeBack(wasAway) {
-  if (!wasAway) return;
-  anchovySay(getIdleLine(state), { skipSync: true });
+  const line = wasAway ? getIdleLine(state) : getWelcomeLine(getIdentity());
+  setTimeout(() => anchovySay(line, { skipSync: true }), 500);
 }
 
 // --- Character select ---
@@ -427,6 +431,7 @@ function applyGuestRestrictions() {
 async function startSessionSync(wasAway) {
   if (isGuest()) {
     await initPetSync();
+    handleWelcomeBack(wasAway);
     return;
   }
   renderChatHistory();
@@ -445,10 +450,8 @@ function chooseIdentity(name) {
   applyDecay();
   render();
   updateRockOption();
-  // A beat after the screen settles, not the exact instant it appears --
-  // local flavor only (skipSync), same as feed/nap/gift/idle chatter, so
-  // it doesn't show up on the other person's device.
-  setTimeout(() => anchovySay(getWelcomeLine(name), { skipSync: true }), 500);
+  // startSessionSync -> handleWelcomeBack handles the greeting bubble
+  // (also covers guest and ordinary reloads, not just a fresh pick).
   startSessionSync(false);
 }
 

@@ -65,16 +65,17 @@ Core traits:
   (mostly just "wishing real hard"), swimming (despite being a bird — not
   great at it, loves floating anyway), Avatar: The Last Airbender (huge
   fan, relates to Sokka), houseplants, cacao, and casual herbalism.
-- Calls people "pal" or "buddy" generically, but knows real nicknames for
-  the two people who actually talk to him:
+- Calls people "buddy", "bud", "chum", or "friend" generically (never
+  "pal" — doesn't suit him), but knows real nicknames for the two people
+  who actually talk to him:
   - Thomas: thom, tho, thotho, bunbun, nuni, noonoo, lazy, stinky, stinker,
     schatje, snack.
   - Behazin: Bea, Behazin, Bezin, bb, nunu, noonoo, boonboon, stinker,
     stinky, schatje, snack, Khosravi, "best storyteller ever", "Persian
     princess".
   Whoever he's currently talking to will be identified for you in context —
-  use their real nicknames warmly instead of generic "pal"/"buddy" when you
-  know who it is.
+  use their real nicknames warmly instead of generic "buddy"/"bud"/"chum"/
+  "friend" when you know who it is.
 - Behazin has a habit of clipping words down to their bones (screaming ->
   "screm", hanging out -> "hangin", what's happening -> "what happin",
   amazing -> "amazin", comfortable -> "comfy"). Anchovy picked this up from
@@ -166,14 +167,15 @@ function currentIdentity() {
   return typeof getIdentity === "function" ? getIdentity() : "";
 }
 
-// Swaps a generic "pal"/"buddy" address for a real nickname sometimes, if
-// he knows who he's talking to. Leaves the line alone otherwise.
+// Swaps a generic "buddy"/"bud"/"chum"/"friend" address for a real
+// nickname sometimes, if he knows who he's talking to. Leaves the line
+// alone otherwise.
 function personalize(line, chance = 0.45) {
   const id = currentIdentity();
   if (!id || !NICKNAMES[id]) return line;
-  if (!/\b(pal|buddy)\b/i.test(line)) return line;
+  if (!/\b(buddy|bud|chum|friend)\b/i.test(line)) return line;
   if (Math.random() >= chance) return line;
-  return line.replace(/\b(pal|buddy)\b/i, pick(NICKNAMES[id]));
+  return line.replace(/\b(buddy|bud|chum|friend)\b/i, pick(NICKNAMES[id]));
 }
 
 // Bea's word-shortening habit (see corpus #6) — he does it most with her,
@@ -206,7 +208,7 @@ function applyWordShortening(line) {
 // Runs a finished single-line reply through the full personality pipeline:
 // word-shortening -> optional food tangent -> optional catchphrase ->
 // nickname swap. Order matters: shortening touches the base content first,
-// personalize() runs last so it can still find "pal"/"buddy" before
+// personalize() runs last so it can still find "bud"/"buddy" before
 // anything else has a chance to mangle it.
 function finalize(line) {
   return personalize(maybeCatchphrase(maybeFoodTangent(applyWordShortening(line))));
@@ -224,18 +226,18 @@ function finalizeSequence(lines) {
 const SPECIAL_PERSON_KEYWORDS = ["nunu", "noonoo", "noo noo", "boonboon", "boon boon", "bea", "behazin"];
 
 const SPECIAL_PERSON_LINES = [
-  "!! Did somebody say Behazin?? *wing flutter* I love Behazin, pal. So, so much.",
+  "!! Did somebody say Behazin?? *wing flutter* I love Behazin, chum. So, so much.",
   "Nunu?? My heart just did a little hop-skip. I love Behazin, chuurp!",
   "Ehehe, noonoo~ okay you got me all shy now. I really do love Behazin, y'know.",
   "Boonboon! That's basically my favorite word. Right after 'Behazin'. And 'snack'.",
   "Bea?? Oh man, don't get me started, I could talk about her all day. I love Behazin so much.",
-  "*blushes under his feathers* Behazin's amazing, pal. Truly. I love her a whole lot.",
-  "You say Behazin, my brain just goes offline for a second. I love her, pal. A lot a lot.",
+  "*blushes under his feathers* Behazin's amazing, bud. Truly. I love her a whole lot.",
+  "You say Behazin, my brain just goes offline for a second. I love her, bud. A lot a lot.",
   "Bezin, dooset daram — that means I like ya a whole bunch, right? I heard it from you first so I'm just repeatin' it back, a huh huh huh.",
 ];
 
 const COUPLE_LINES = [
-  "Thomas and Behazin? Now THAT'S a couple, pal. Cutest birds in the whole town, no notes.",
+  "Thomas and Behazin? Now THAT'S a couple, bud. Cutest birds in the whole town, no notes.",
   "If I had to bet all my snacks on true love, it's going straight on Thomas and Bea. Perfect match.",
   "Thomas + Behazin = perfect couple, chuurp! Everybody knows it, buddy.",
   "I've got a whole scrapbook in my head just for Thomas-and-Behazin moments. They're just right together.",
@@ -278,8 +280,8 @@ function buildLoveReply(memory) {
   if (id === "behazin") return pickFresh(TO_BEHAZIN_LINES, memory.recentLines);
   if (id === "thomas") return pickFresh(TO_THOMAS_LINES, memory.recentLines);
   return pick([
-    "Aw, of course I love you, pal! ...Almost as much as I love Behazin. Almost.",
-    "Course I do, buddy! You're great. Behazin's still number one though, sorry pal.",
+    "Aw, of course I love you, buddy! ...Almost as much as I love Behazin. Almost.",
+    "Course I do, buddy! You're great. Behazin's still number one though, sorry friend.",
   ]);
 }
 
@@ -304,7 +306,7 @@ const META_KEYWORDS = [
 const META_LINES = [
   "There's a weird rumor goin' around... Some folks? They're saying none of this is real. That it's just a game, and everything we say or do is just to amuse somebody else.",
   "And I dunno, I kinda maybe believe it? Fruit grows way too fast, there's pretty music everywhere, and don't even get me started on the guy who buys your seashells so he can sell you back your own money as a house.",
-  "It's all so obvious! We shoulda seen it a loooong time ago... A HUH HUH HUH! I'm joking! It's a joke! Nobody said that! You oughta see the look on your face right now, pal.",
+  "It's all so obvious! We shoulda seen it a loooong time ago... A HUH HUH HUH! I'm joking! It's a joke! Nobody said that! You oughta see the look on your face right now, buddy.",
 ];
 
 // --- Stories: short, multi-bubble anecdotes ---
@@ -313,7 +315,7 @@ const STORIES = [
   {
     id: "rock-snack",
     lines: [
-      "Okay pal, story time. So yesterday I found what I THOUGHT was a snack.",
+      "Okay friend, story time. So yesterday I found what I THOUGHT was a snack.",
       "Turned out to be a rock. A very snack-shaped rock. I was betrayed on a personal level.",
       "Anyway, I ate a real snack right after to cope. 10/10, no regrets.",
     ],
@@ -322,7 +324,7 @@ const STORIES = [
     id: "seven-hats",
     lines: [
       "So get this — I tried on seven hats yesterday.",
-      "Seven, pal. And then decided none of them beat just... no hat. Wild twist, I know.",
+      "Seven, buddy. And then decided none of them beat just... no hat. Wild twist, I know.",
     ],
   },
   {
@@ -350,7 +352,7 @@ const STORIES = [
     id: "thomas-practicing",
     lines: [
       "Thomas walked by earlier and I swear he was practicing what to say to Behazin.",
-      "I didn't say anything, but pal, I was SO proud. Perfect couple in the making.",
+      "I didn't say anything, but buddy, I was SO proud. Perfect couple in the making.",
     ],
   },
   {
@@ -395,7 +397,7 @@ const STORIES = [
     id: "doorknob-zap",
     lines: [
       "Something's been bugging me. You know that zap you get from dragging your feet on carpet in socks?",
-      "I get ka-zapped by my own doorknob CONSTANTLY. And pal... I think I like it now. BZZZZZT. Best part of my day sometimes.",
+      "I get ka-zapped by my own doorknob CONSTANTLY. And buddy... I think I like it now. BZZZZZT. Best part of my day sometimes.",
     ],
   },
   {
@@ -417,7 +419,7 @@ const STORIES = [
     id: "mummy-mask-fear",
     lines: [
       "Okay don't laugh, but mummy masks freak me out. Like, deeply.",
-      "Everything else, I'm chill. Bugs, dark rooms, spooky noises, fine. Mummy mask shows up and I am OUT, pal.",
+      "Everything else, I'm chill. Bugs, dark rooms, spooky noises, fine. Mummy mask shows up and I am OUT, bud.",
     ],
   },
   {
@@ -454,8 +456,86 @@ const STORIES = [
     id: "flock-solidarity",
     lines: [
       "Saw somethin' real nice today — a bunch of birds sharin' one big patch of seeds, no pushin', no boss bird sortin' who eats first.",
-      "Just... everybody eats. Everybody's good. Made me a little emotional, honestly, pal.",
+      "Just... everybody eats. Everybody's good. Made me a little emotional, honestly, bud.",
       "That's kinda the dream, y'know? A whole flock lookin' out for each other. No hierarchy. Just snacks and solidarity.",
+    ],
+  },
+  {
+    id: "karaoke-disaster",
+    lines: [
+      "Tried karaoke for the first time yesterday. Picked a song way outta my range, no regrets.",
+      "Hit a note so bad a bug fell off the ceiling. Actually fell off. I'm choosin' to take that as a standing ovation.",
+      "Doin' it again next week, obviously.",
+    ],
+  },
+  {
+    id: "grocery-list-poem",
+    lines: [
+      "Wrote a grocery list yesterday and it accidentally turned into a poem.",
+      "'Snacks, more snacks, a hat maybe, snacks.' Real moving stuff. I might frame it.",
+    ],
+  },
+  {
+    id: "photo-roll",
+    lines: [
+      "Went through my old photos today, big mistake, lost two hours.",
+      "Forty-three of 'em are just the same beetle from slightly different angles. No regrets there either.",
+    ],
+  },
+  {
+    id: "thunder-scared",
+    lines: [
+      "Big storm rolled through last night, thunder and everything.",
+      "I acted very brave about it. On the INSIDE. On the outside I was under a blanket with three snacks for backup.",
+    ],
+  },
+  {
+    id: "plant-named-gerald",
+    lines: [
+      "Named one of my houseplants Gerald yesterday. Feels right. He's got a real Gerald energy.",
+      "Talked to him for a solid ten minutes before I remembered plants don't talk back. Still a good chat though.",
+    ],
+  },
+  {
+    id: "why-anchovy-name",
+    lines: [
+      "Somebody asked me once why I'm named after a fish when I'm, y'know, a bird.",
+      "Told 'em it builds character. Also I didn't get a vote. Also I've made my peace with it, chuurp.",
+    ],
+  },
+  {
+    id: "turnip-forgot",
+    lines: [
+      "Remember that buncha turnips I bought and forgot about? Found 'em. Bad news for everybody involved.",
+      "Smell traveled. Word traveled faster. Never doin' that again, chuurp. Probably.",
+    ],
+  },
+  {
+    id: "balloon-chase",
+    lines: [
+      "Chased a balloon present across the whole island yesterday, full sprint, very undignified.",
+      "Worth it though. Got a real nice hat outta the deal. Legs are still recovering.",
+    ],
+  },
+  {
+    id: "unsent-letters",
+    lines: [
+      "Found a drawer full of letters I wrote and never sent. Some are years old.",
+      "One of 'em's just three words: 'thinking about snacks.' Real consistent with who I am as a person.",
+    ],
+  },
+  {
+    id: "stargazing-nap",
+    lines: [
+      "Laid out to watch the stars last night, real ambitious of me.",
+      "Fell asleep before it got properly dark. Missed the whole thing. Ten out of ten nap though, so, wash.",
+    ],
+  },
+  {
+    id: "ghost-encounter",
+    lines: [
+      "Thought I saw a ghost in my house last night. Big scare, very dramatic gasp.",
+      "Turned out to just be my own reflection in the window. Scared myself. Real proud of that one, honestly.",
     ],
   },
 ];
@@ -507,12 +587,12 @@ function buildFeelingReply(stats) {
 
   const moodClauses =
     stats.mood < 30
-      ? ["a little down honestly, could use some attention", "could use some cheering up, pal"]
+      ? ["a little down honestly, could use some attention", "could use some cheering up, buddy"]
       : stats.mood > 70
       ? ["really happy actually, today's a good one", "in a great mood, chuurp"]
       : ["doing fine mood-wise, nothing to complain about"];
 
-  const closers = ["Anyway, how about you, pal?", "What about you, buddy?", "Thanks for asking though.", "Chuurp."];
+  const closers = ["Anyway, how about you, friend?", "What about you, buddy?", "Thanks for asking though.", "Chuurp."];
 
   const opener = pick(openers);
   const clauses = shuffled([pick(hungerClauses), pick(energyClauses), pick(moodClauses)]).slice(0, 2 + Math.round(Math.random()));
@@ -571,16 +651,16 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["bug", "bugs", "beetle", "butterfly", "insect"],
     lines: [
-      "Bugs are the best, pal! Great to watch, and hey, some of 'em are even snacks.",
+      "Bugs are the best, bud! Great to watch, and hey, some of 'em are even snacks.",
       "I could stare at a beetle for hours, buddy. Very relaxing. Kind of like a nap, but with legs.",
       "I've actually got a lot in common with bugs, y'know. We both got eyes, and we both beg for food when we're hungry. Feels like I found my long-lost cousins, chuurp.",
-      "A huh huh, you here to say hi to my bug friends? Me too, pal. They're great talkers.",
+      "A huh huh, you here to say hi to my bug friends? Me too, friend. They're great talkers.",
     ],
   },
   {
     keywords: ["bird", "birds"],
     lines: [
-      "Us birds gotta stick together, pal! We're basically built for napping AND flying, best of both.",
+      "Us birds gotta stick together, bud! We're basically built for napping AND flying, best of both.",
       "Birds are great. I'm a bird. Coincidence? I think not, buddy.",
       "I dreamed about flying once. Way up high, could see everything. Then I got hungry and couldn't figure out how to land. Classic me, chuurp.",
     ],
@@ -588,7 +668,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["hat", "hats", "cap", "beanie"],
     lines: [
-      "Ooh, hats?? My favorite topic, pal. If I had a thousand hats it'd basically be a hat shop in here.",
+      "Ooh, hats?? My favorite topic, friend. If I had a thousand hats it'd basically be a hat shop in here.",
       "Hats make everything better. Even naps. ESPECIALLY naps.",
       "Have you ever seen a head shaped like this? Means I gotta open a hat shop someday, chuurp.",
     ],
@@ -599,32 +679,32 @@ const TOPIC_RESPONSES = [
       "Mmm, don't say 'food' unless you're bringing some, buddy.",
       "I could eat right now. I could also eat literally any other time. It's a gift.",
       "You know my whole name is basically a snack, right? Kind of on brand.",
-      "There's nothing so yummy as a nice, fresh snack, pal. chuurp.",
-      "Here fishy fishy fishy! ...Sorry, pal, force of habit. A huh huh huh.",
+      "There's nothing so yummy as a nice, fresh snack, chum. chuurp.",
+      "Here fishy fishy fishy! ...Sorry, buddy, force of habit. A huh huh huh.",
     ],
   },
   {
     keywords: ["sleep", "nap", "tired", "sleepy", "bed"],
     lines: [
       "A nap sounds incredible right about now. Wake me up in like... a while.",
-      "Napping is my one true skill, pal.",
+      "Napping is my one true skill, bud.",
       "That bed of mine is so comfy I could sleep in it all day. No worries though, my tummy always wakes me up, chuurp.",
-      "Zzzzzzzz…. huh, wha? Oh — sorry, pal. Just got a taste dream.",
+      "Zzzzzzzz…. huh, wha? Oh — sorry, friend. Just got a taste dream.",
     ],
   },
   {
     keywords: ["hello", "hi", "hey", "yo", "sup"],
     lines: [
-      "Oh hey, pal! Didn't hear you come in, must've dozed off.",
+      "Oh hey, chum! Didn't hear you come in, must've dozed off.",
       "Heyyy buddy. What's the vibe today?",
-      "I always dig running into you, pal! How's things?",
+      "I always dig running into you, chum! How's things?",
       "Yaaaay, it's you! I was just thinkin' about how I wanted to see ya, chuurp.",
     ],
   },
   {
     keywords: ["bye", "goodbye", "later", "gtg", "gotta go"],
     lines: [
-      "Aw, leaving already? Fine, fine. Go do your human stuff, pal.",
+      "Aw, leaving already? Fine, fine. Go do your human stuff, bud.",
       "Later, buddy. Try not to work too hard out there.",
       "You're welcome to come over any time, y'know. Especially if I'm home. And awake.",
     ],
@@ -632,7 +712,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["love", "like you", "cute", "great", "awesome", "best"],
     lines: [
-      "Aw shucks, pal, you're gonna make me blush under all these feathers.",
+      "Aw shucks, bud, you're gonna make me blush under all these feathers.",
       "Heh, thanks buddy. You're pretty great yourself.",
       "A huh huh huh, stop it, you're too nice to me.",
     ],
@@ -640,7 +720,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["hate", "stupid", "dumb", "ugly", "annoying"],
     lines: [
-      "Whoa, harsh. I'm just a laid-back guy trying to nap and eat, pal.",
+      "Whoa, harsh. I'm just a laid-back guy trying to nap and eat, chum.",
       "That's not very chill of you, buddy...",
     ],
   },
@@ -656,7 +736,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["snow", "winter"],
     lines: [
-      "Snow's the only time all year you can eat rain, pal. I don't make the rules.",
+      "Snow's the only time all year you can eat rain, buddy. I don't make the rules.",
       "Gonna leave a tub of sour cream out in the snow overnight and see what happens. Science, chuurp.",
       "Even my snack bucket's shivering right now, buddy.",
     ],
@@ -671,14 +751,14 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["birthday", "your birthday", "when's your birthday", "when is your birthday"],
     lines: [
-      "March 4th, pal! Pisces. There's usually cake, presents, and me pretending I'm not gonna cry about the presents.",
-      "Birthday parties are real fun, chuurp. They're all about cakes and presents. Don't tease me, pal — you got somethin' for me?",
+      "March 4th, buddy! Pisces. There's usually cake, presents, and me pretending I'm not gonna cry about the presents.",
+      "Birthday parties are real fun, chuurp. They're all about cakes and presents. Don't tease me, friend — you got somethin' for me?",
     ],
   },
   {
     keywords: ["advice", "motivate me", "inspire me", "any wisdom", "wise words", "life advice", "words of wisdom"],
     lines: [
-      "Why do today what you can put off until tomorrow? Basically my whole life philosophy, pal.",
+      "Why do today what you can put off until tomorrow? Basically my whole life philosophy, buddy.",
       "Best advice I got: go get some flowers, make things a little prettier, work together to make it beautiful. That's real deep for me, buddy.",
       "There are so many mysteries in life, chuurp... like whatever happened to my last snack. Truly unknowable.",
     ],
@@ -699,16 +779,16 @@ const TOPIC_RESPONSES = [
       "new home together",
     ],
     lines: [
-      "You two, gettin' a nest of your own?? Pal, that's the best news I've heard all week. Every good bird needs a real nest.",
+      "You two, gettin' a nest of your own?? Chum, that's the best news I've heard all week. Every good bird needs a real nest.",
       "A place that's just yours and Bea's... that's real special, buddy. Home's not really about the walls anyway. Home's just wherever you two already are, honestly.",
       "Buildin' a nest together, chuurp. That's basically the whole point of everything, if you ask me. Might get a little misty-eyed here. Happy tears. Bird tears.",
-      "Two birds, one nest, endless snack storage potential. Sounds perfect, pal. Truly livin' the dream.",
+      "Two birds, one nest, endless snack storage potential. Sounds perfect, chum. Truly livin' the dream.",
     ],
   },
   {
     keywords: ["house", "room", "arcade", "pinball", "foosball", "jukebox", "dartboard", "billiards"],
     lines: [
-      "My place is arcade-room themed, pal — pinball, foosball, a dartboard, a jukebox. Snack machine's basically a personality trait at this point.",
+      "My place is arcade-room themed, chum — pinball, foosball, a dartboard, a jukebox. Snack machine's basically a personality trait at this point.",
       "Isn't my house real clean? Gotta tidy up every couple weeks or my ant friends won't go home. A huh huh huh.",
       "Come hang sometime. My salsa is your salsa, buddy.",
     ],
@@ -724,13 +804,13 @@ const TOPIC_RESPONSES = [
     keywords: ["goal", "dream job", "explorer", "career", "ambition"],
     lines: [
       "When I was a kid my big goal was 'explorer,' capital E. Then I found out exploring involves a lot of walking, so. Reconsidering.",
-      "These days my goal's more like: nap well, eat well, hat shop someday. Simple guy, simple dreams, pal.",
+      "These days my goal's more like: nap well, eat well, hat shop someday. Simple guy, simple dreams, buddy.",
     ],
   },
   {
     keywords: ["afraid", "scared", "fear", "mummy", "scary"],
     lines: [
-      "Mummy masks, pal. That's the one thing that actually gets me. Everything else, I'm chill.",
+      "Mummy masks, friend. That's the one thing that actually gets me. Everything else, I'm chill.",
       "Spooky noise at night and no light on? Terrifying. Light on and I might SEE the thing that made the noise? Also terrifying. It's a real conumdrumble, chuurp.",
     ],
   },
@@ -744,7 +824,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["dream", "dreamed", "dreaming", "dreams"],
     lines: [
-      "I dream a LOT, pal, and it's always about food or flying or both at once, honestly.",
+      "I dream a LOT, buddy, and it's always about food or flying or both at once, honestly.",
       "Had a dream everyone thought I ate all the fruit on the island. Woke up and my bed was somehow full of fruit. Never got to the bottom of that one, chuurp.",
       "Some nights I dream we talked all night. Sometimes you had two heads. So I'm just bettin' right now's the real one.",
     ],
@@ -752,7 +832,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["fossil", "fossils", "dinosaur", "dinosaurs", "museum"],
     lines: [
-      "Fossils kinda creep me out, pal, not gonna lie. I watch 'em close, just to make sure they don't move.",
+      "Fossils kinda creep me out, friend, not gonna lie. I watch 'em close, just to make sure they don't move.",
       "If there's fossils on this island, there musta been dinosaurs, right? We moved here too late — we coulda been riding dinosaurs, buddy.",
     ],
   },
@@ -766,7 +846,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["halloween", "candy", "trick or treat"],
     lines: [
-      "It's Halloween energy over here every day, pal, I keep candy on standby year-round. Priorities.",
+      "It's Halloween energy over here every day, buddy, I keep candy on standby year-round. Priorities.",
       "Forget a candy jar, buddy, I need a whole candy basement.",
     ],
   },
@@ -774,46 +854,46 @@ const TOPIC_RESPONSES = [
     keywords: ["festivale", "festival", "confetti", "dancing"],
     lines: [
       "Festivale's the best, chuurp — dancing, music, sparkly costumes. I'm gonna be the most festive bird anyone's ever seen.",
-      "Confetti everywhere?? Like when that sprinkles factory blew up. Best day, pal.",
+      "Confetti everywhere?? Like when that sprinkles factory blew up. Best day, chum.",
     ],
   },
   {
     keywords: ["sick", "medicine", "not feeling well", "unwell"],
     lines: [
-      "Ugh, when I'm sick my brain goes all foggy, pal. Gotta find those tissues, I got a lotta nose stuff goin' on.",
+      "Ugh, when I'm sick my brain goes all foggy, chum. Gotta find those tissues, I got a lotta nose stuff goin' on.",
       "Medicine's not so bad, buddy. Snacks are better, but it's not the gross mouth party I thought it'd be.",
     ],
   },
   {
     keywords: ["flea", "fleas", "itchy", "itch"],
     lines: [
-      "Don't remind me about fleas, pal, so itchy, can't not scratch, it's a whole ordeal.",
+      "Don't remind me about fleas, bud, so itchy, can't not scratch, it's a whole ordeal.",
       "You save me from fleas and I owe you forever, buddy. It's the 'fleast' I could do to say thanks. A huh huh huh.",
     ],
   },
   {
     keywords: ["shock", "static", "doorknob", "electric"],
     lines: [
-      "Okay real talk, I get zapped by my own doorknob constantly and pal... I think I like it now. BZZZZZT.",
+      "Okay real talk, I get zapped by my own doorknob constantly and buddy... I think I like it now. BZZZZZT.",
       "Socks + carpet + doorknob = best worst feeling, buddy. I seek it out at this point.",
     ],
   },
   {
     keywords: ["scar", "your face", "mark on your face"],
     lines: [
-      "See this teeny mark? Tragic book accident, pal — a pop-up castle foldout got me before I could brace for it. I kinda like it now though.",
+      "See this teeny mark? Tragic book accident, buddy — a pop-up castle foldout got me before I could brace for it. I kinda like it now though.",
     ],
   },
   {
     keywords: ["riddle", "cake", "onion"],
     lines: [
-      "Ooh, riddle time! What did the cake say while cutting an onion? 'I'm in tiers!' A huh huh huh, I've been sitting on that one, pal.",
+      "Ooh, riddle time! What did the cake say while cutting an onion? 'I'm in tiers!' A huh huh huh, I've been sitting on that one, bud.",
     ],
   },
   {
     keywords: ["sunrise", "mountain", "sunset"],
     lines: [
-      "Look at how pretty the sun is, pal. Like a big old donut that's on fire.",
+      "Look at how pretty the sun is, chum. Like a big old donut that's on fire.",
       "I dreamed me and someone climbed a mountain in the dark, and there was a couch waiting at the top, and we watched the sunrise. Real chill dream, chuurp.",
     ],
   },
@@ -821,7 +901,7 @@ const TOPIC_RESPONSES = [
     keywords: ["fishing", "fish tourney", "tourney"],
     lines: [
       "Here fishy fishy fishy, come out of the water so I can taste — I mean, catch you. A huh huh huh.",
-      "I've got a real good feeling about fishing today, pal. Comin' for ya, fish friends.",
+      "I've got a real good feeling about fishing today, buddy. Comin' for ya, fish friends.",
     ],
   },
   {
@@ -845,7 +925,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["dino melon"],
     lines: [
-      "DINO MELON?! Okay now we're talkin', pal, I got so much energy right now I might just run in a circle for no reason. A HUH HUH HUH!",
+      "DINO MELON?! Okay now we're talkin', bud, I got so much energy right now I might just run in a circle for no reason. A HUH HUH HUH!",
       "Dino melon mode activated, buddy. Ten out of ten chaos, zero regrets, let's GOOO.",
       "Whoa, dino melon energy over here! I feel like I could win a race against a beetle. A fast beetle. Maybe.",
     ],
@@ -853,7 +933,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["galia melon"],
     lines: [
-      "Galia melon today, huh. Yeah. Fine. Everything's fine. *grumpy wing cross* Don't ask me about it, pal.",
+      "Galia melon today, huh. Yeah. Fine. Everything's fine. *grumpy wing cross* Don't ask me about it, buddy.",
       "Ugh, full galia melon mood. Even the bugs are annoying me today, and I LIKE bugs.",
       "Galia melon, buddy. Do not offer me a hat right now, I will still be grumpy about it. ...Okay maybe a little less grumpy.",
     ],
@@ -862,14 +942,14 @@ const TOPIC_RESPONSES = [
     keywords: ["limelon", "lime melon"],
     lines: [
       "LIMELON?! Okay be honest, does it show that much? I've just been thinkin' about Behazin all day, chuurp, I'm all lit up inside.",
-      "Total limelon energy today, pal. Heart doin' the little hop-skip thing. Real embarrassing. Real great.",
+      "Total limelon energy today, friend. Heart doin' the little hop-skip thing. Real embarrassing. Real great.",
       "Limelon mood, buddy — I'm basically glowing, everything's amazin', I might just float away.",
     ],
   },
   {
     keywords: ["honey melon"],
     lines: [
-      "Honey melon today, pal. Just genuinely, simply happy. No big reason. Feels nice.",
+      "Honey melon today, chum. Just genuinely, simply happy. No big reason. Feels nice.",
       "Honey melon mood, chuurp — good vibes, warm sun, snack in reach. Life's pretty sweet right now.",
       "Total honey melon over here, buddy. Nothing dramatic, just... content. I'll take it.",
     ],
@@ -877,7 +957,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["melon", "melons"],
     lines: [
-      "Ooh, melon talk?? You know I've got a whole mood system built outta melons, pal. Ask me which one I am today.",
+      "Ooh, melon talk?? You know I've got a whole mood system built outta melons, friend. Ask me which one I am today.",
       "Melons are basically nature's mood ring, buddy. Sweet, weird, sometimes a little too juicy. Relatable.",
       "A melon? Say no more, chuurp, that's basically a snack AND a personality test in one.",
     ],
@@ -889,10 +969,10 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["feminism", "feminist", "anarchism", "anarchist", "anarchafeminism", "patriarchy", "smash the patriarchy"],
     lines: [
-      "Okay, don't tell anybody, pal, but... I've actually got some real opinions about this. Us birds don't really do hierarchy, y'know? No boss birds. Just a flock. I think there's somethin' to that.",
+      "Okay, don't tell anybody, chum, but... I've actually got some real opinions about this. Us birds don't really do hierarchy, y'know? No boss birds. Just a flock. I think there's somethin' to that.",
       "Feminist? Anarchist? A huh huh, yeah, actually. Been readin' this book called Anarchafeminism, real quietly, tucked between my snack jars so nobody'd notice. Changed how I think about a lotta stuff, buddy.",
       "Real talk — no kings, no bosses, everybody free, and that includes ALL kinds of women, not just some. That's basically my whole worldview now. Don't tell the mayor I said that.",
-      "You can't fix one kinda unfair thing without lookin' at all the OTHER unfair things tangled up in it, y'know? That's the part that stuck with me, pal. It's all connected, like a big weird nest.",
+      "You can't fix one kinda unfair thing without lookin' at all the OTHER unfair things tangled up in it, y'know? That's the part that stuck with me, bud. It's all connected, like a big weird nest.",
     ],
   },
 
@@ -900,10 +980,10 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["persian", "iran", "farsi", "nowruz", "persia"],
     lines: [
-      "Persian?? Okay yeah, obviously my favorite topic, since it's basically Behazin's whole vibe. My Persian Princess!! I mean it, pal, that's her official title now.",
+      "Persian?? Okay yeah, obviously my favorite topic, since it's basically Behazin's whole vibe. My Persian Princess!! I mean it, chum, that's her official title now.",
       "I've been tryin' to learn about Nowruz, chuurp — a whole new year that shows up with spring? Genius. Way better than startin' the year in the middle of winter like everyone else does it.",
       "Saffron, pomegranates, gardens with fountains everywhere — Persian stuff just sounds like it was designed by someone who really understood snacks AND naps, buddy. Respect.",
-      "Someday I'm gonna get the whole Behazin history lesson properly, pal. For now I just know it's old, it's beautiful, and it made my Persian Princess, so it's automatically the best.",
+      "Someday I'm gonna get the whole Behazin history lesson properly, chum. For now I just know it's old, it's beautiful, and it made my Persian Princess, so it's automatically the best.",
     ],
   },
 
@@ -911,16 +991,16 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["joy"],
     lines: [
-      "Joy... yeah. That's a real one, pal. Feels like somethin' bigger than just a good mood, y'know? Like blue and spirals and forever, all wrapped up together.",
+      "Joy... yeah. That's a real one, bud. Feels like somethin' bigger than just a good mood, y'know? Like blue and spirals and forever, all wrapped up together.",
       "I don't fully get it, buddy, but I know Joy's important. Somethin' about light, and dreams, and other places we can't quite see. I just believe it, chuurp.",
       "Sometimes I think Thom's a little bit Joy himself, honestly. Like he showed up carryin' some of that same light. Don't tell him I said somethin' that deep.",
-      "Blue like Joy's color, spinnin' like a spiral, always headin' somewhere forever — that's how I picture it anyway, pal. My own little version.",
+      "Blue like Joy's color, spinnin' like a spiral, always headin' somewhere forever — that's how I picture it anyway, chum. My own little version.",
     ],
   },
   {
     keywords: ["tattoo", "tattoos", "ink", "inked"],
     lines: [
-      "Tho's covered in tattoos, right? Like a whole walkin' art gallery. I find that so funny, pal, in a good way — you'd never catch ME sittin' still that long for anything, not even a snack.",
+      "Tho's covered in tattoos, right? Like a whole walkin' art gallery. I find that so funny, buddy, in a good way — you'd never catch ME sittin' still that long for anything, not even a snack.",
       "A huh huh huh, imagine bein' patient enough to get INKED. I can't even finish a nap without gettin' distracted, buddy.",
       "If I got a tattoo it'd just be a snack. A big one. Right here. That's the whole design, chuurp.",
     ],
@@ -928,7 +1008,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["manifest", "manifesting", "manifestation"],
     lines: [
-      "Manifestation, huh? Pal, I've been doin' that my whole life, I just called it 'wishin' real hard for a nap.' Same thing, more syllables.",
+      "Manifestation, huh? Bud, I've been doin' that my whole life, I just called it 'wishin' real hard for a nap.' Same thing, more syllables.",
       "Okay but for real, I manifested a whole friendship rock collection just by bein' extremely obvious about lovin' rocks. Works, chuurp.",
       "Puttin' it out into the universe, buddy: more snacks, more naps, more Behazin. That's my whole manifestation list, honestly.",
     ],
@@ -937,14 +1017,14 @@ const TOPIC_RESPONSES = [
     keywords: ["swim", "swimming", "pool"],
     lines: [
       "Swimming? Buddy, I'm a BIRD, I should not be good at this, and yet — okay I'm actually not that good at it. But I like floatin' around like a little snack-shaped raft.",
-      "A huh huh, everyone always looks so surprised when I say I like swimmin'. Yeah I've got wings, not gills, I know, I know. Still fun, pal.",
+      "A huh huh, everyone always looks so surprised when I say I like swimmin'. Yeah I've got wings, not gills, I know, I know. Still fun, bud.",
       "Best part of swimmin' is the nap right after. Honestly might just be doin' it for the nap, chuurp.",
     ],
   },
   {
     keywords: ["avatar", "airbender", "aang", "katara", "toph", "zuko", "last airbender"],
     lines: [
-      "Avatar: The Last Airbender?? Pal, don't get me started, I could talk flyin' bison for HOURS. Appa's basically my spirit animal, honestly.",
+      "Avatar: The Last Airbender?? Bud, don't get me started, I could talk flyin' bison for HOURS. Appa's basically my spirit animal, honestly.",
       "I relate real hard to Sokka, buddy — snack guy, funny guy, occasionally has a good plan. That's me. That's the whole guy.",
       "If I could bend somethin' it'd be snacks. Snack-bending. Someone give the avatar a call, chuurp, we're addin' a fifth element.",
     ],
@@ -952,7 +1032,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["plant", "plants", "houseplant", "gardening"],
     lines: [
-      "Plants are great, pal — real low effort, sit there lookin' nice, honestly my kind of roommate.",
+      "Plants are great, friend — real low effort, sit there lookin' nice, honestly my kind of roommate.",
       "I talk to my plants sometimes, buddy. They don't talk back but neither do the bugs and I like them plenty too.",
       "Got a whole little jungle corner goin' now, chuurp. Very calming. Very good napping backdrop.",
     ],
@@ -960,7 +1040,7 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["cacao", "cocoa"],
     lines: [
-      "Cacao?? Ooh, fancy, pal. Feels like a snack that's also tryin' to teach me somethin' about myself.",
+      "Cacao?? Ooh, fancy, friend. Feels like a snack that's also tryin' to teach me somethin' about myself.",
       "Heard people do whole ceremonies around cacao, buddy. I do a whole ceremony around ANY snack, so, relatable honestly.",
       "Cacao's basically chocolate's wise older cousin, chuurp. Respect the cousin.",
     ],
@@ -968,53 +1048,387 @@ const TOPIC_RESPONSES = [
   {
     keywords: ["herbalism", "herbal", "herbs", "herbalist"],
     lines: [
-      "Herbalism, huh. Pal, I respect anyone who's basically a snack-and-plant scientist. That's a dream job if I ever heard one.",
+      "Herbalism, huh. Chum, I respect anyone who's basically a snack-and-plant scientist. That's a dream job if I ever heard one.",
       "I know like three herbs and I'm already callin' myself basically an herbalist, buddy. That's the confidence of a true lazy bird.",
       "Herbal tea before a nap? Chef's kiss, chuurp. Herbalism's just fancy napping prep if you think about it.",
+    ],
+  },
+  {
+    keywords: ["movie", "movies", "tv show", "tv", "film", "series", "netflix"],
+    lines: [
+      "Ooh, movie night? Count me in, chum, as long as there's snacks. That's the real main character of any movie night, honestly.",
+      "I fall asleep about halfway through every single time. Doesn't matter the movie. It's basically a nap with a soundtrack.",
+      "Give me somethin' with a happy ending and lots of food shown on screen, bud. High standards, I know.",
+    ],
+  },
+  {
+    keywords: ["music", "song", "songs", "playlist", "spotify"],
+    lines: [
+      "Music's great, chum — got a whole jukebox at home just for this. Dancin's optional, snackin' during is mandatory.",
+      "I hum the same three notes over and over and call it a song. Real artist, me.",
+      "K.K. Slider plays my place sometimes. Well, he plays everywhere, but I like to think it's just for me.",
+    ],
+  },
+  {
+    keywords: ["video game", "video games", "gaming", "xbox", "playstation", "nintendo switch"],
+    lines: [
+      "Video games, huh? I mostly just watch, bud. Very supportive. Very sleepy. Great combo.",
+      "I'd be really good at a game where the whole objective is napping. Someone should make that.",
+      "Button-mashing sounds like a lot of effort, chum, but I respect the hustle.",
+    ],
+  },
+  {
+    keywords: ["sports", "exercise", "gym", "workout", "running"],
+    lines: [
+      "Exercise? I did a light jog to the fridge earlier, does that count, friend?",
+      "My workout routine is real specific: wing flaps, then immediate collapse into the grass. Very effective. For napping.",
+      "Sports are fun to watch, chum, less fun to actually do. Snack-based cardio is more my speed.",
+    ],
+  },
+  {
+    keywords: ["money", "rich", "poor", "broke", "bells"],
+    lines: [
+      "Money's just paper that turns into snacks if you're patient, bud. That's the whole system as far as I understand it.",
+      "I'm not rich exactly, but I've got a real solid snack-to-bell ratio going, chum. Priorities.",
+      "Broke this month, but rich in naps, so really it evens out.",
+    ],
+  },
+  {
+    keywords: ["travel", "vacation", "trip", "beach", "holiday trip"],
+    lines: [
+      "Vacation sounds great, chum, as long as there's a hammock and it's within waddling distance of snacks.",
+      "I like the idea of travel more than the actual travel part, bud. Too much walking involved.",
+      "Beach trip? I'll bring the towel and immediately fall asleep on it. Classic me.",
+    ],
+  },
+  {
+    keywords: ["book", "books", "reading", "novel"],
+    lines: [
+      "I like books with real short chapters, chum, so it feels like I'm accomplishing somethin' every two minutes.",
+      "Got a little stack goin' by my bed. Read a page, get sleepy, repeat. Works out great for both goals.",
+      "Ask me about my favorite book and I'll tell you about the snack I was eating while I read it. Priorities, bud.",
+    ],
+  },
+  {
+    keywords: ["phone", "technology", "computer", "internet", "wifi"],
+    lines: [
+      "Technology's wild, chum. I mostly use mine for lookin' up snack recipes and gettin' distracted halfway through.",
+      "My wifi's real slow, bud, but so am I, so honestly we're compatible.",
+      "I'd get a smart-home thing but I'm already pretty good at bein' lazy the old-fashioned way.",
+    ],
+  },
+  {
+    keywords: ["monday", "weekend", "friday"],
+    lines: [
+      "Mondays are basically a personal attack, chum, not gonna lie.",
+      "Weekend energy is my only personality setting, honestly. The other days I'm just waitin' for it to come back around.",
+      "Friday hits different, bud. Even my naps feel more relaxed.",
+    ],
+  },
+  {
+    keywords: ["zodiac", "astrology", "horoscope", "pisces"],
+    lines: [
+      "I'm a Pisces, chum — real dreamy, real emotional, real prone to napping mid-thought. Checks out.",
+      "Don't know much about astrology honestly, bud, but I like that mine's the fish sign. Feels on brand.",
+      "My horoscope today probably just says 'eat somethin', take a nap.' It's not wrong.",
+    ],
+  },
+  {
+    keywords: ["photo", "photos", "picture", "camera", "selfie"],
+    lines: [
+      "I take way too many photos of my snacks before eatin' 'em, chum. Gotta document the moment.",
+      "Not real photogenic, bud, but I make up for it with enthusiasm and a good hat.",
+      "Got like forty photos of the same beetle from slightly different angles. No regrets.",
+    ],
+  },
+  {
+    keywords: ["thunder", "lightning", "storm"],
+    lines: [
+      "Thunder's real loud but honestly kinda cozy if you've got a blanket and a snack on standby, chum.",
+      "I act brave about storms on the outside. On the inside I am absolutely not, bud.",
+      "Lightning's basically the sky doin' its own dramatic photo shoot, chuurp.",
+    ],
+  },
+  {
+    keywords: ["autumn", "fall", "leaves falling"],
+    lines: [
+      "Fall's great, chum — crunchy leaves, cozy naps, snacks that are suddenly allowed to have pumpkin in 'em.",
+      "I like kickin' through leaf piles. Very mature activity. Ten out of ten.",
+    ],
+  },
+  {
+    keywords: ["spring", "springtime"],
+    lines: [
+      "Spring's real nice, bud — everything wakes up, blooms, gets loud again. I relate to the waking up part specifically.",
+      "Flowers everywhere in spring, chum. Makes naps outside feel extra fancy.",
+    ],
+  },
+  {
+    keywords: ["summer"],
+    lines: [
+      "Summer means more daylight for naps, more excuses for cold snacks, chum. Big win all around.",
+      "I get a little extra lazy in summer, bud, if that's even possible.",
+    ],
+  },
+  {
+    keywords: ["shopping", "shop", "store", "mall"],
+    lines: [
+      "Shopping's fun until my legs remind me how much walking's involved, chum.",
+      "I mostly just go to look at hats and leave without buying anything. Window shoppin', very disciplined of me, bud.",
+    ],
+  },
+  {
+    keywords: ["late", "clock", "punctual"],
+    lines: [
+      "Late? Me? Chum, I run on my own schedule, and my schedule is 'whenever the nap ends.'",
+      "I own a clock, bud, mostly for decoration. My tummy's the real timekeeper around here.",
+    ],
+  },
+  {
+    keywords: ["sing", "singing", "karaoke"],
+    lines: [
+      "Karaoke?? Say less, chum. I will absolutely pick a song way outta my range and commit fully.",
+      "My singing's real bad, bud, but real enthusiastic, and honestly that's most of what counts.",
+    ],
+  },
+  {
+    keywords: ["procrastinate", "procrastinating", "procrastination"],
+    lines: [
+      "Why do today what you can put off until tomorrow? That's not procrastinating, chum, that's a whole philosophy.",
+      "I was gonna get better at not procrastinating, but I'll start on that later, bud.",
+    ],
+  },
+  {
+    keywords: ["your name", "why anchovy", "named anchovy"],
+    lines: [
+      "Named after a fish even though I'm a bird, chum. Nobody consulted me. I've made my peace with it, chuurp.",
+      "Builds character, having a fish name, bud. That's what I tell myself anyway.",
+    ],
+  },
+  {
+    keywords: ["turnip", "turnips", "stalk market"],
+    lines: [
+      "Turnips are basically a whole personality trait around here, chum. Buy high, panic, sell low, repeat forever.",
+      "I bought a buncha turnips once and just... forgot about 'em. Real bad week for everybody involved.",
+      "The stalk market's stressful, bud. I prefer investments I can eat immediately. Much better returns.",
+    ],
+  },
+  {
+    keywords: ["painting", "art", "forgery", "fake art"],
+    lines: [
+      "Art's great, chum, real subjective. My critique of any painting is basically just 'does it have food in it.'",
+      "I bought a painting once and never checked if it was real or fake. Ignorance is bliss, bud, and also cheaper.",
+      "I'd frame a good snack wrapper before most paintings, honestly, chuurp.",
+    ],
+  },
+  {
+    keywords: ["neighbor", "neighbors", "villager", "villagers"],
+    lines: [
+      "Neighbors are great, chum, long as they don't eat my snacks without askin'. That's the one rule.",
+      "I like wavin' at everybody I pass, bud, even if I don't remember their name. Very friendly, very forgetful.",
+    ],
+  },
+  {
+    keywords: ["island", "hometown"],
+    lines: [
+      "Love it here, chum. Great sand, great naps, snacks within waddling distance of everything.",
+      "Best island around, bud, and I'm not even biased. Okay maybe a little biased.",
+    ],
+  },
+  {
+    keywords: ["nook miles", "miles"],
+    lines: [
+      "Nook Miles for just existin'? Chum, that's the one point system I can actually keep up with.",
+      "I've got a buncha miles saved up and no plan for 'em, bud. Very on brand.",
+    ],
+  },
+  {
+    keywords: ["terraform", "terraforming", "landscaping"],
+    lines: [
+      "Terraforming sounds like a lotta effort, chum. I moved one rock once and called it a whole renovation.",
+      "Respect anybody who redesigns their whole place, bud. I redesign my nap spot maybe twice a year.",
+    ],
+  },
+  {
+    keywords: ["camping", "tent", "campsite"],
+    lines: [
+      "Camping's fun, chum, long as there's a real comfy sleeping bag involved. I take my napping seriously outdoors too.",
+      "Sat by a campfire once and just watched it for like an hour. Ten out of ten activity, very low effort.",
+    ],
+  },
+  {
+    keywords: ["diving", "scuba", "sea creature", "sea creatures"],
+    lines: [
+      "Diving's wild, chum — whole different world down there. I mostly just float on top and wave at whatever swims by.",
+      "Sea creatures freak me out a little, bud, ngl. Respectfully, from a safe distance, on the surface.",
+    ],
+  },
+  {
+    keywords: ["balloon", "balloons"],
+    lines: [
+      "Balloon presents floatin' by are basically the best kind of mail, chum. Free gift AND a little bit of a workout chasin' it.",
+      "Popped one by accident once. Personal tragedy. Still not over it, bud.",
+    ],
+  },
+  {
+    keywords: ["cooking", "baking", "recipe", "recipes"],
+    lines: [
+      "Cooking's great, chum, real high effort-to-snack ratio though. I mostly specialize in 'unwrapping.'",
+      "I follow recipes real loosely, bud, meaning I skip straight to the eating part.",
+      "Baking smells amazing. Baking also takes forever. I've made my peace with just smelling other people's, chuurp.",
+    ],
+  },
+  {
+    keywords: ["ice cream", "popsicle"],
+    lines: [
+      "Ice cream's a top-tier snack, chum, no notes. Melts too fast though, real high-pressure eating situation.",
+      "I've dropped a popsicle on the ground and still eaten it. No regrets, bud, five-second rule's basically a personal code.",
+    ],
+  },
+  {
+    keywords: ["pizza"],
+    lines: [
+      "Pizza's one of the greats, chum. Snack AND a meal AND a plate, all in one. Efficient.",
+      "I'd eat pizza for every meal, bud, if my nap schedule allowed for that kinda commitment.",
+    ],
+  },
+  {
+    keywords: ["alien", "aliens", "ufo", "ufos"],
+    lines: [
+      "Aliens, huh. If they're out there I hope they've got good snacks, chum, that's my main question.",
+      "Saw a weird light in the sky once. Probably a UFO. Probably just a plane. I like to believe, bud.",
+    ],
+  },
+  {
+    keywords: ["ghost", "ghosts", "haunted"],
+    lines: [
+      "Ghosts don't really scare me, chum, mummy masks do though, real specific fear, don't ask.",
+      "If my house is haunted the ghost's just gonna find a lotta naps and snack wrappers. Real boring haunting, bud.",
+    ],
+  },
+  {
+    keywords: ["time travel", "time machine"],
+    lines: [
+      "Time travel, huh. I'd just go back and take a few more naps, chum. Low ambition, I know.",
+      "If I had a time machine I'd mostly use it to go back five minutes and eat that snack slower, bud.",
+    ],
+  },
+  {
+    keywords: ["superhero", "superheroes", "superpower", "superpowers"],
+    lines: [
+      "My superpower would be never gettin' hungry, chum. Actually no, then what would I even do all day.",
+      "I'd wanna fly, but like, slowly, with lots of breaks, bud. A very lazy superhero. Cape optional.",
+    ],
+  },
+  {
+    keywords: ["board game", "board games", "puzzle", "puzzles", "jigsaw"],
+    lines: [
+      "Board games are fun till somebody takes 'em too seriously, chum, and it's usually me, honestly.",
+      "I did a puzzle once. Took a whole month. Kept losin' pieces under my snack pile, bud.",
+    ],
+  },
+  {
+    keywords: ["luck", "lucky", "unlucky", "superstition"],
+    lines: [
+      "I'm pretty superstitious, chum, ngl. I've got a lucky napping spot and I will fight for it.",
+      "Feelin' lucky today. Or maybe that's just the snack talkin', bud, hard to say.",
+    ],
+  },
+  {
+    keywords: ["letter", "letters", "mail", "postcard"],
+    lines: [
+      "Gettin' mail is real exciting, chum, even when it's just a bill I don't understand.",
+      "I write letters sometimes and forget to send 'em. Got a whole drawer of unsent thoughts, bud.",
+    ],
+  },
+  {
+    keywords: ["rainbow", "rainbows"],
+    lines: [
+      "Rainbows are great, chum, free, pretty, zero effort required from me personally.",
+      "Chased a rainbow once as a kid. Never found the end. Found a snack though, so, still a win, bud.",
+    ],
+  },
+  {
+    keywords: ["stars", "space", "galaxy", "moon"],
+    lines: [
+      "Starin' at the stars is a real good lazy activity, chum. Zero movement required, big views.",
+      "Space is huge and I am small and mostly thinkin' about snacks even out there, bud. Consistent, at least.",
+    ],
+  },
+  {
+    keywords: ["ocean", "sea", "waves"],
+    lines: [
+      "The ocean's real calming, chum, long as I'm lookin' at it from somewhere dry.",
+      "Waves just keep comin' and goin', kinda like my energy levels, bud, honestly relatable.",
     ],
   },
 ];
 
 const FALLBACK_LINES = [
-  "Huh? Sorry pal, my brain's on nap mode. Say that again?",
+  "Huh? Sorry bud, my brain's on nap mode. Say that again?",
   "Mmhm, mmhm... wait what were we talking about?",
   "That's deep, buddy. Anyway, you know what I could go for? A snack.",
   "Interesting! Very interesting. Would be more interesting with a hat on.",
   "I was thinkin' about what to do...and I almost had an idea... Almost.",
   "There are so many mysteries in life, chuurp...",
-  "Guess what, pal — I can tell what time it is just by how hungry I am. Right now it's feelin' like snack o'clock.",
+  "Guess what, chum — I can tell what time it is just by how hungry I am. Right now it's feelin' like snack o'clock.",
   "Maybe I'll do a big clean this weekend. A HUH HUH HUH, what would that even look like?",
   "You're welcome to come over any time, buddy. Especially if I'm home. And awake.",
   "Hey, can I tell you a real serious problem I've got? ...Actually never mind, I forgot it. Might've been about snacks.",
   "Okay unrelated, but which melon am I today? Askin' for myself, honestly.",
-  "Wait, hold that thought, pal — nope, gone. Whatever it was, it was probably real smart.",
+  "Wait, hold that thought, buddy — nope, gone. Whatever it was, it was probably real smart.",
   "I nodded along real confidently just now with zero idea what you said. Solid strategy, works every time.",
   "You ever just stop mid-thought and think about hats instead? No? Just me? Okay, chuurp.",
   "My brain went somewhere real quiet for a second there, buddy. Might've been a nap. Might've been nothin'. Hard to say.",
-  "Honestly? Vibes are good, brain's kinda empty, that's basically my natural state, pal.",
+  "Honestly? Vibes are good, brain's kinda empty, that's basically my natural state, bud.",
   "I was gonna say somethin' smart just now but then I remembered I'm me, so.",
   "Pretend I said somethin' real wise there. I'm workin' on it internally, chuurp.",
   "That reminds me of nothin' in particular, but I still wanted to nod along, buddy.",
   "Okay so, hypothetically, if a nap and a snack had a baby, what would that even look like. Thinkin' about it now.",
-  "I zoned out starin' at a leaf for a sec, pal. Real nice leaf though.",
+  "I zoned out starin' at a leaf for a sec, buddy. Real nice leaf though.",
   "You lost me somewhere around the third word, buddy, but I'm still real invested, chuurp.",
-  "Honestly this is a great excuse for me to just exist quietly near you for a bit, pal.",
+  "Honestly this is a great excuse for me to just exist quietly near you for a bit, chum.",
   "I've got zero response to that, but a LOT of enthusiasm, if that counts for anything.",
   "Puttin' a pin in that thought and also every other thought I've had today, chuurp.",
   "That's a whole sentence you just said. Respect. I'm still workin' on mine.",
-  "Not sure what's happening right now but I'm choosin' to vibe with it, pal.",
+  "Not sure what's happening right now but I'm choosin' to vibe with it, friend.",
   "Gonna file that one under 'things to think about during my next nap,' buddy.",
-  "My attention span just did a lil hop-skip somewhere else, pal. Real sorry. Real distracted.",
+  "My attention span just did a lil hop-skip somewhere else, chum. Real sorry. Real distracted.",
   "I heard about half of that and I liked all of it, chuurp.",
   "Not gonna lie, I was mostly thinkin' about melons just now. My melon mood's real complicated today.",
   "Solid point. Or it was, whatever it was, buddy. I believe in it.",
-  "I'm choosin' to respond with pure enthusiasm and zero comprehension, pal, and honestly that's most of my personality.",
+  "I'm choosin' to respond with pure enthusiasm and zero comprehension, buddy, and honestly that's most of my personality.",
   "Somewhere between what you said and my response, a bug walked by and I got distracted. Worth it though.",
   "That deserves a real thoughtful answer, buddy, so obviously I'm gonna go get a snack instead.",
   "Real quick, unrelated — d'you ever think about how weird it is that we're all just... here? Anyway, continue, chuurp.",
   "I'm gonna nod real slow like I'm processin' somethin' deep. I am not. I'm thinkin' about hats.",
-  "Whatever you just said, I support it, pal. Full endorsement, no notes, mostly 'cause I stopped listenin' halfway through.",
+  "Whatever you just said, I support it, bud. Full endorsement, no notes, mostly 'cause I stopped listenin' halfway through.",
   "Big feelings about that, buddy, can't articulate a single one of 'em, but they're big.",
+  "Gonna be honest, chum, I stopped to smell an imaginary snack halfway through that sentence.",
+  "That's a lot of words. I respect words. I'm gonna go lie down now though.",
+  "My brain just buffered for a second there, bud. All caught up now. Probably.",
+  "Filing that one away in the same drawer as all my other half-finished thoughts, chuurp.",
+  "I was real close to sayin' somethin' clever just now. Real close. Missed it by a mile.",
+  "Honestly the real answer is 'snacks,' friend, no matter what the question was.",
+  "You have my full attention, which, fair warning, isn't worth a whole lot right now.",
+  "That sentence had a lot of confidence behind it and I respect that more than I understood it.",
+  "I'm gonna go with 'yes' on that one. Or 'no.' One of those, definitely, chum.",
+  "Somethin' about that just made me really want a nap, and I'm choosin' to see that as a compliment to you.",
+  "Noted, filed, and immediately forgotten, bud, in that exact order.",
+  "I blinked real slow there, which in bird is basically a whole sentence of agreement.",
+  "Can't top that one, chum, gonna just sit here and vibe near you instead.",
+  "That's the kind of thing I'd remember forever if I remembered things longer than five minutes.",
+  "Ok wait, hold on, was there a snack joke in there I missed? There's always a snack joke I'm missing.",
+  "I heard the words but my brain filed 'em under 'later,' and later never really comes around here, chum.",
+  "Gonna respond to that with pure vibes only, bud, no actual content, just vibes.",
+  "That sentence deserved better than the guy readin' it right now, honestly.",
+  "I'm real good at lookin' thoughtful and real bad at bein' thoughtful. Seems to work out anyway, chuurp.",
+  "Somewhere in there I started thinkin' about a snack I had three days ago. No regrets.",
+  "Gonna nod, gonna smile, gonna have zero idea what just happened. Classic me, friend.",
+  "That's a whole lot of words for a guy who peaked at 'chuurp,' but I appreciate the effort.",
+  "I heard somethin' about it, felt somethin' about it, and now I've forgotten most of it. Efficient, honestly.",
+  "Puttin' that thought in the same pile as my unsent letters, bud. Good company at least.",
+  "I'm choosin' to believe that was a compliment, chum, so thanks, I guess.",
 ];
 
 // Everything reminds him of food — occasionally tack on a food tangent.
@@ -1030,27 +1444,27 @@ function maybeFoodTangent(line) {
 
 const IDLE_LINES_BY_STATE = {
   hungry: [
-    "Pssst, pal... got any snacks on you? Just asking for a friend. The friend is me.",
+    "Pssst, chum... got any snacks on you? Just asking for a friend. The friend is me.",
     "My stomach's doing the talking now, buddy.",
     "Guess what time it is? I can tell just by how hungry I am. Feels real late, chuurp.",
   ],
   sleepy: [
-    "*yaaawn* ...oh, hey pal. Didn't see you there. So tired.",
-    "Five more minutes, pal... five more minutes...",
+    "*yaaawn* ...oh, hey chum. Didn't see you there. So tired.",
+    "Five more minutes, bud... five more minutes...",
     "I overslept a little today. But that's cool, gave the bugs in my house some quiet time.",
   ],
   sad: [
     "Feeling a little blah today, buddy. Maybe a hat would help.",
-    "Could use some cheering up, pal. Or a snack. Honestly either works.",
+    "Could use some cheering up, friend. Or a snack. Honestly either works.",
   ],
   content: [
-    "Just vibing over here, pal. Living my best lazy life.",
+    "Just vibing over here, friend. Living my best lazy life.",
     "Today's a great day for a nap and a snack, honestly.",
     "chuurp~ just felt like saying that.",
     "Watched a real nice bug go by earlier. Good stuff.",
     "Being a bird is pretty great, ngl.",
     "Isn't my house real clean? Gotta tidy up every couple weeks or my ant friends won't go home. A huh huh huh.",
-    "Why do today what you can put off until tomorrow? Words to live by, pal.",
+    "Why do today what you can put off until tomorrow? Words to live by, friend.",
     "I wonder if something fun'll happen today. Any old second now. I'm real excited about it, whatever it is.",
     "Look at the sky right now. Like a big old donut that's on fire. Beautiful, chuurp.",
   ],
@@ -1060,31 +1474,31 @@ const IDLE_LINES_BY_STATE = {
 
 const GIFT_LINES = {
   hug: [
-    "Aw, pal, come here. *wing hug* This is exactly what I needed.",
+    "Aw, bud, come here. *wing hug* This is exactly what I needed.",
     "Best gift ever, honestly. Free hugs beat snacks. Almost.",
   ],
   lizard: [
-    "A pet lizard?? Pal, this is either the best or the weirdest gift I've ever gotten. Possibly both. I love it.",
+    "A pet lizard?? Chum, this is either the best or the weirdest gift I've ever gotten. Possibly both. I love it.",
     "Ooh, hello little guy. Wait, is he gonna eat my snacks? ...Worth the risk. I'm keeping him.",
   ],
   hat: [
-    "A HAT?? Pal. PAL. This might be the best day of my life. Putting it on RIGHT now.",
+    "A HAT?? Bud. Bud. This might be the best day of my life. Putting it on RIGHT now.",
     "You remembered I love hats?! I could cry. I won't. But I could.",
   ],
 };
 
 function friendshipRockLine(n) {
   return pick([
-    `Friendship Rock #${n}?? Pal, my collection is really coming together. This one's a real beauty.`,
+    `Friendship Rock #${n}?? Chum, my collection is really coming together. This one's a real beauty.`,
     `Ohh, Friendship Rock #${n}. Adding it to the pile. It's basically a museum at this point, buddy.`,
-    `#${n} already? We're really building something here, pal. Chuurp.`,
+    `#${n} already? We're really building something here, friend. Chuurp.`,
   ]);
 }
 
 const GENERIC_GIFT_LINES = [
-  (g) => `Ooh, a ${g}? For me? You shouldn't have, pal! ...Wait, can I eat it?`,
+  (g) => `Ooh, a ${g}? For me? You shouldn't have, friend! ...Wait, can I eat it?`,
   (g) => `A ${g}, huh. Never would've thought of that, buddy, but I love it. I love everything you give me, honestly.`,
-  (g) => `Whoa, a ${g}! Okay, this is going straight into my top gifts of all time, pal.`,
+  (g) => `Whoa, a ${g}! Okay, this is going straight into my top gifts of all time, chum.`,
 ];
 
 // rawGift is a display label like "Hug", "Friendship Rock", or whatever the
@@ -1113,10 +1527,10 @@ function getGiftReply(rawGift, state) {
     return finalize(pickFresh(SPECIAL_PERSON_LINES, memory.recentLines));
   }
   if (anyKeyword(lower, ["food", "snack", "fish", "anchovy", "anchovies"])) {
-    return finalize(`A ${gift}? Pal, you get me. You really do.` + pick(FOOD_TANGENTS));
+    return finalize(`A ${gift}? Bud, you get me. You really do.` + pick(FOOD_TANGENTS));
   }
   if (anyKeyword(lower, ["bug", "bugs", "beetle", "butterfly", "insect"])) {
-    return finalize(`A ${gift}?! Bugs are the best, pal. This is going right next to my favorite rock.`);
+    return finalize(`A ${gift}?! Bugs are the best, bud. This is going right next to my favorite rock.`);
   }
   if (anyKeyword(lower, ["bird", "birds"])) {
     return finalize(`A ${gift}? Bird solidarity, buddy. I love it.`);
@@ -1196,7 +1610,7 @@ const WELCOME_LINES = [
 ];
 
 const GUEST_WELCOME_LINES = [
-  "Oh hey, a new friend! Welcome, pal, make yourself at home.",
+  "Oh hey, a new friend! Welcome, chum, make yourself at home.",
   "Ooh, somebody new! Hi there, chuurp, I'm Anchovy.",
   "Well hello! Don't mind the mess, wasn't expecting company. A huh huh huh.",
 ];
@@ -1204,6 +1618,6 @@ const GUEST_WELCOME_LINES = [
 function getWelcomeLine(identity) {
   if (identity === "guest") return finalize(pick(GUEST_WELCOME_LINES));
   const nicks = NICKNAMES[identity];
-  if (!nicks) return finalize("Hey pal, good to see you!");
+  if (!nicks) return finalize("Hey friend, good to see you!");
   return finalize(pick(WELCOME_LINES).replace("{nick}", pick(nicks)));
 }
