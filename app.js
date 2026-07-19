@@ -1,4 +1,13 @@
-const STORAGE_KEY = "anchovy-tamagotchi-state";
+const BASE_STORAGE_KEY = "anchovy-tamagotchi-state";
+
+// Guest gets its own fully isolated storage bucket -- if a guest is using
+// one of Thomas/Behazin's own devices (handed a phone, say), this keeps
+// their session from ever loading the real chat history/memory into
+// memory at all, not just hiding it in the UI.
+function storageKeyFor(identity) {
+  return identity === "guest" ? `${BASE_STORAGE_KEY}-guest` : BASE_STORAGE_KEY;
+}
+
 const MAX_STAT = 100;
 const MIN_STAT = 0;
 
@@ -69,8 +78,16 @@ const el = {
   identityStatus: document.getElementById("identity-status"),
   identitySwitch: document.getElementById("identity-switch"),
   charScreen: document.getElementById("char-screen"),
+  charPicker: document.getElementById("char-picker"),
   charThomas: document.getElementById("char-thomas"),
   charBehazin: document.getElementById("char-behazin"),
+  charGuest: document.getElementById("char-guest"),
+  charPinForm: document.getElementById("char-pin-form"),
+  charPinTitle: document.getElementById("char-pin-title"),
+  charPinInput: document.getElementById("char-pin-input"),
+  charPinError: document.getElementById("char-pin-error"),
+  charPinCancel: document.getElementById("char-pin-cancel"),
+  nookphoneSettingsApp: document.querySelector('.nookphone-app[data-app="settings"]'),
 };
 
 document.body.classList.toggle("bubble-v2", BUBBLE_STYLE_V2);
@@ -89,7 +106,7 @@ const BUBBLE_TRANSITION_MS = 350;
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKeyFor(getIdentity()));
     if (!raw) return { ...DEFAULT_STATE };
     const parsed = JSON.parse(raw);
     return {
@@ -104,7 +121,7 @@ function loadState() {
 }
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(storageKeyFor(getIdentity()), JSON.stringify(state));
 }
 
 function clamp(n) {
@@ -369,6 +386,7 @@ function handleWelcomeBack(wasAway) {
 // --- Character select ---
 
 function showCharScreen() {
+  cancelPinPrompt();
   el.charScreen.classList.remove("hidden");
 }
 
@@ -376,22 +394,113 @@ function hideCharScreen() {
   el.charScreen.classList.add("hidden");
 }
 
-function chooseIdentity(name) {
-  setIdentity(name);
-  hideCharScreen();
-  updateIdentityStatus();
-  renderChatHistory();
-  initSharedSync().then(() => handleWelcomeBack(false));
+// Wipes everything on screen that came from whoever was previously signed
+// in on this device -- Anchovy's own lines aren't secret, but they can
+// reference the person he was just talking to, so a guest picking up the
+// device mid-session shouldn't see the tail end of a Thomas/Behazin
+// conversation for even a moment.
+function resetConversationUI() {
+  latestHumanMsgEl = null;
+  el.chatlog.innerHTML = "";
+  el.anchovyBubbles.innerHTML = "";
+  gameboxHistory.length = 0;
+  gameboxIndex = -1;
+  el.gameboxText.textContent = "";
+  el.gameboxTime.textContent = "";
+  el.gameboxPointerUp.hidden = true;
 }
 
-el.charThomas.addEventListener("click", () => chooseIdentity("thomas"));
-el.charBehazin.addEventListener("click", () => chooseIdentity("behazin"));
+// Guests never touch the shared Thomas<->Behazin thread or Gemini
+// settings -- they can still feed/nap/gift/chat with Anchovy directly
+// (that chat stays local to their own device, see the skipSync: isGuest
+// checks below), and the shared pet stats still sync for them too, since
+// it's the same Anchovy either way.
+function isGuest() {
+  return getIdentity() === "guest";
+}
+
+function applyGuestRestrictions() {
+  const guest = isGuest();
+  el.nookphoneSettingsApp.classList.toggle("nookphone-app--disabled", guest);
+}
+
+async function startSessionSync(wasAway) {
+  if (isGuest()) {
+    await initPetSync();
+    return;
+  }
+  renderChatHistory();
+  await initSharedSync();
+  await initPetSync();
+  handleWelcomeBack(wasAway);
+}
+
+function chooseIdentity(name) {
+  setIdentity(name);
+  state = loadState(); // identity-scoped storage -- fresh bucket per person
+  resetConversationUI();
+  hideCharScreen();
+  updateIdentityStatus();
+  applyGuestRestrictions();
+  applyDecay();
+  render();
+  updateRockOption();
+  // A beat after the screen settles, not the exact instant it appears --
+  // local flavor only (skipSync), same as feed/nap/gift/idle chatter, so
+  // it doesn't show up on the other person's device.
+  setTimeout(() => anchovySay(getWelcomeLine(name), { skipSync: true }), 500);
+  startSessionSync(false);
+}
+
+el.charThomas.addEventListener("click", () => promptForPin("thomas"));
+el.charBehazin.addEventListener("click", () => promptForPin("behazin"));
+el.charGuest.addEventListener("click", () => chooseIdentity("guest"));
+
+let pendingPinName = null;
+
+function promptForPin(name) {
+  pendingPinName = name;
+  el.charPinTitle.textContent = `${name === "thomas" ? "Thomas'" : "Behazin's"} PIN`;
+  el.charPinError.textContent = "";
+  el.charPinInput.value = "";
+  el.charPicker.classList.add("hidden");
+  el.charPinForm.classList.remove("hidden");
+  el.charPinInput.focus();
+}
+
+function cancelPinPrompt() {
+  pendingPinName = null;
+  el.charPinForm.classList.add("hidden");
+  el.charPicker.classList.remove("hidden");
+}
+
+el.charPinCancel.addEventListener("click", cancelPinPrompt);
+
+el.charPinForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (checkIdentityPin(pendingPinName, el.charPinInput.value.trim())) {
+    const name = pendingPinName;
+    cancelPinPrompt();
+    chooseIdentity(name);
+  } else {
+    el.charPinError.textContent = "Wrong PIN, try again.";
+    el.charPinInput.value = "";
+    el.charPinInput.focus();
+  }
+});
 
 el.identitySwitch.addEventListener("click", () => {
   setIdentity("");
   updateIdentityStatus();
   closeSettingsMenu();
-  el.chatlog.innerHTML = "";
+  resetConversationUI();
+  // Stop the outgoing identity's realtime subscription/polling right now
+  // instead of leaving them dangling until the next identity's sync
+  // happens to replace them -- that gap was the "stuck on old messages"
+  // bug, since a resubscribe can race and silently end up not receiving
+  // live updates until a full page reload forces a clean reconnect.
+  resetSupabaseClient();
+  petStateSynced = false;
   showCharScreen();
 });
 
@@ -432,6 +541,66 @@ async function initSharedSync() {
   startMessagePolling(handleRemoteInsert);
 }
 
+// --- Shared pet stats: one Anchovy, so hunger/energy/mood sync across
+// every device (Thomas, Behazin, and Guest all feed the same bird) even
+// though the chat thread above stays private to Thomas/Behazin. Degrades
+// to today's fully-local stats automatically if the pet_state table
+// hasn't been created yet (see sync.js header for the SQL) or sync isn't
+// configured at all.
+let petStateSynced = false;
+let petStateHasPocketColumns = false;
+
+async function initPetSync() {
+  if (!isSyncConfigured()) return;
+  const { row, error } = await fetchPetState();
+  if (error || !row) return; // table missing, or offline -- stay local-only
+  petStateSynced = true;
+  petStateHasPocketColumns = "rock_count" in row;
+  applyRemotePetState(row);
+  subscribeToPetState(applyRemotePetState);
+}
+
+function applyRemotePetState(row) {
+  const remoteUpdated = new Date(row.updated_at).getTime();
+  // Ignore a remote row that's older than what this device already has --
+  // otherwise a slow fetch response arriving after a local action could
+  // stomp the fresher value right back down.
+  if (remoteUpdated < state.lastUpdate) return;
+  state.hunger = row.hunger;
+  state.energy = row.energy;
+  state.mood = row.mood;
+  // Pocket totals (rock/pet/hat counts) are a newer addition to pet_state
+  // -- these keys are simply absent from the row on a device that hasn't
+  // run the migration yet, so only apply them when present.
+  if (row.rock_count != null) state.friendshipRockCount = row.rock_count;
+  if (row.pet_count != null) state.giftCounts.lizard = row.pet_count;
+  if (row.hat_count != null) state.giftCounts.hat = row.hat_count;
+  state.lastUpdate = remoteUpdated;
+  saveState();
+  render();
+  updateRockOption();
+  updatePocketCounts();
+}
+
+// Called right after any action that changes the stats locally (feed/nap/
+// gift). Decay itself isn't pushed on every tick from every open device --
+// only real actions write, which is enough for the other side to see it
+// live and keeps this from turning into a write storm.
+function pushPetStateIfSynced() {
+  if (!petStateSynced) return;
+  const fields = { hunger: state.hunger, energy: state.energy, mood: state.mood };
+  // Only include the pocket-total columns once we've confirmed (via the
+  // initial fetch) that this project's pet_state table actually has them
+  // -- sending an unknown column would make the whole update fail,
+  // breaking hunger/energy/mood sync too on a not-yet-migrated table.
+  if (petStateHasPocketColumns) {
+    fields.rock_count = state.friendshipRockCount || 0;
+    fields.pet_count = (state.giftCounts && state.giftCounts.lizard) || 0;
+    fields.hat_count = (state.giftCounts && state.giftCounts.hat) || 0;
+  }
+  pushPetState(fields);
+}
+
 // --- Actions ---
 
 el.btnFeed.addEventListener("click", () => {
@@ -439,6 +608,7 @@ el.btnFeed.addEventListener("click", () => {
   state.mood = clamp(state.mood + 5);
   saveState();
   render();
+  pushPetStateIfSynced();
   anchovySay(
     pick([
       "Ahh yeah, that hit the spot, pal. chuurp~",
@@ -453,6 +623,7 @@ el.btnNap.addEventListener("click", () => {
   state.mood = clamp(state.mood + 3);
   saveState();
   render();
+  pushPetStateIfSynced();
   anchovySay(
     pick([
       "That was a great nap, buddy. Feel like a new bird.",
@@ -507,6 +678,7 @@ function giveGift(kind, giftLabel) {
   if (kind === "hat") state.giftCounts.hat = (state.giftCounts.hat || 0) + 1;
   saveState();
   render();
+  pushPetStateIfSynced();
   updateRockOption();
   closeGiftMenu();
 
@@ -570,6 +742,10 @@ function showNookphoneScreen(name) {
 document.querySelectorAll(".nookphone-app[data-app]").forEach((app) => {
   app.addEventListener("click", (e) => {
     const target = app.dataset.app;
+    if (target === "settings" && isGuest()) {
+      e.preventDefault();
+      return; // guests can't touch Gemini/API settings
+    }
     // Pocket and K.K. Slider aren't sub-screens of the phone -- Pocket
     // reuses the same popup as the yellow action button, and K.K. Slider
     // is a real link (browser handles it, nothing to wire up here).
@@ -630,7 +806,8 @@ el.settingsClear.addEventListener("click", () => {
 function updateIdentityStatus() {
   el.identityStatus.style.color = "";
   const name = getIdentity();
-  el.identityStatus.textContent = name ? (name === "thomas" ? "Thomas" : "Behazin") : "Not chosen yet.";
+  el.identityStatus.textContent =
+    name === "thomas" ? "Thomas" : name === "behazin" ? "Behazin" : name === "guest" ? "Guest" : "Not chosen yet.";
 }
 
 // --- Left chat panel: Thomas <-> Behazin, with @anchy pulling Anchovy in ---
@@ -639,12 +816,17 @@ el.chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const text = el.chatInput.value.trim();
   if (!text) return;
-  addMessage(getIdentity(), text);
+  // Guests get a real conversation with Anchovy, but it never touches the
+  // shared messages table -- it stays local to their own device, same as
+  // feed/nap/gift flavor text already does.
+  const guestChat = isGuest();
+  addMessage(getIdentity(), text, guestChat ? { skipSync: true } : undefined);
   el.chatInput.value = "";
 
   state.mood = clamp(state.mood + 2);
   saveState();
   render();
+  pushPetStateIfSynced();
 
   if (MENTION_RE.test(text)) {
     const asked = text.replace(MENTION_RE, "").trim() || "Hey Anchovy!";
@@ -663,7 +845,7 @@ el.chatForm.addEventListener("submit", (e) => {
         reply = getAnchovyReply(asked, state);
       }
       saveState(); // memory (recent lines / told stories) was updated
-      sayReply(reply);
+      sayReply(reply, guestChat ? { skipSync: true } : undefined);
     }, 400 + Math.random() * 400);
   }
 });
@@ -691,13 +873,12 @@ setInterval(() => {
   updateRockOption();
   updateSettingsStatus();
   updateIdentityStatus();
+  applyGuestRestrictions();
   saveState();
 
   if (getIdentity()) {
     hideCharScreen();
-    renderChatHistory();
-    await initSharedSync();
-    handleWelcomeBack(wasAway);
+    await startSessionSync(wasAway);
   } else {
     showCharScreen();
   }

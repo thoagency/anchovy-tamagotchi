@@ -1182,3 +1182,28 @@ function getIdleLine(state) {
   if (state.mood < 30) return finalize(pickFresh(IDLE_LINES_BY_STATE.sad, memory.recentLines));
   return finalize(pickFresh(IDLE_LINES_BY_STATE.content, memory.recentLines));
 }
+
+// --- Greets whoever just picked/switched into an account (app.js calls
+// this from chooseIdentity, not gated by decay/away-time like
+// getIdleLine's "welcome back" logic -- this fires every single time). ---
+
+const WELCOME_LINES = [
+  "Hey {nick}, you're back! chuurp!",
+  "{nick}! You're here! Perfect timing, I was getting a little lonely over here.",
+  "Oh hey, {nick}! My whole day just got better.",
+  "{nick}! Did somebody say snack time? No? Just checking, since you're here now.",
+  "{nick}, chuurp chuurp! I was JUST thinking about you, no joke.",
+];
+
+const GUEST_WELCOME_LINES = [
+  "Oh hey, a new friend! Welcome, pal, make yourself at home.",
+  "Ooh, somebody new! Hi there, chuurp, I'm Anchovy.",
+  "Well hello! Don't mind the mess, wasn't expecting company. A huh huh huh.",
+];
+
+function getWelcomeLine(identity) {
+  if (identity === "guest") return finalize(pick(GUEST_WELCOME_LINES));
+  const nicks = NICKNAMES[identity];
+  if (!nicks) return finalize("Hey pal, good to see you!");
+  return finalize(pick(WELCOME_LINES).replace("{nick}", pick(nicks)));
+}

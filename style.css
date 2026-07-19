@@ -58,6 +58,8 @@ body {
 
 .char-buttons {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
 }
 
@@ -74,6 +76,41 @@ body {
 
 .char-btn:active {
   transform: scale(0.96);
+}
+
+.char-btn--guest {
+  background: #e3d5b8;
+  color: #4b3a2a;
+}
+
+.char-btn--ghost {
+  background: none;
+  color: #6b5638;
+  font-weight: normal;
+}
+
+.char-pin.hidden,
+#char-picker.hidden {
+  display: none;
+}
+
+.char-pin-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 2px solid #e3d5b8;
+  font-size: 20px;
+  letter-spacing: 0.3em;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.char-pin-error {
+  min-height: 16px;
+  color: #c0392b;
+  font-size: 12px;
+  margin-bottom: 10px;
 }
 
 /* --- Pocket popup: totals of everything he's been given --- */
@@ -263,6 +300,15 @@ body {
   font-size: 10.5px;
   font-weight: 700;
   color: #4b3a2a;
+}
+
+.nookphone-app--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nookphone-app--disabled:hover .nookphone-app-icon {
+  transform: none;
 }
 
 .nookphone-back {

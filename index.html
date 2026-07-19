@@ -12,12 +12,26 @@
 <body>
   <div id="char-screen" class="char-screen hidden">
     <div class="char-card">
-      <h1>Who's chatting?</h1>
-      <p>Pick your name to hop in.</p>
-      <div class="char-buttons">
-        <button type="button" id="char-thomas" class="char-btn">Thomas</button>
-        <button type="button" id="char-behazin" class="char-btn">Behazin</button>
+      <div id="char-picker">
+        <h1>Who's chatting?</h1>
+        <p>Pick your name to hop in.</p>
+        <div class="char-buttons">
+          <button type="button" id="char-thomas" class="char-btn">Thomas</button>
+          <button type="button" id="char-behazin" class="char-btn">Behazin</button>
+          <button type="button" id="char-guest" class="char-btn char-btn--guest">Guest</button>
+        </div>
       </div>
+
+      <form id="char-pin-form" class="char-pin hidden">
+        <h1 id="char-pin-title">PIN</h1>
+        <p>Just for us -- ask if you forgot it.</p>
+        <input id="char-pin-input" class="char-pin-input" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="••••" />
+        <div id="char-pin-error" class="char-pin-error"></div>
+        <div class="char-buttons">
+          <button type="submit" class="char-btn">Continue</button>
+          <button type="button" id="char-pin-cancel" class="char-btn char-btn--ghost">Back</button>
+        </div>
+      </form>
     </div>
   </div>
 
